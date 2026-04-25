@@ -142,10 +142,10 @@ int main(void)
 			}
 		}
 
-		if (MFRC522_Authentication(&rfID, uid, data_block, 0x0A) == STATUS_OK)
-		{
-			USER_LOG("AUTH_SUCCESS");
-		}
+//		if (MFRC522_Authentication(&rfID, uid, data_block, 0x0A) == STATUS_OK)
+//		{
+//			USER_LOG("AUTH_SUCCESS");
+//		}
 		waitcardRemoval(&rfID);
 	}
   }

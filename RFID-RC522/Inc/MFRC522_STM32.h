@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #define ENABLE_USER_LOG   1
-#define ENABLE_DEBUG_LOG  1 // Test with this disabled
+#define ENABLE_DEBUG_LOG  0 // Test with this disabled
 
 #if ENABLE_USER_LOG
   #define USER_LOG(fmt, ...) printf("[USER] " fmt "\r\n", ##__VA_ARGS__)
