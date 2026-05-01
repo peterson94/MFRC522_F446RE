@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #define ENABLE_USER_LOG   1
-#define ENABLE_DEBUG_LOG  0 // Test with this disabled
+#define ENABLE_DEBUG_LOG  1 // Test with this disabled
 
 #if ENABLE_USER_LOG
   #define USER_LOG(fmt, ...) printf("[USER] " fmt "\r\n", ##__VA_ARGS__)
@@ -73,6 +73,7 @@ void MFRC522_ClearBitMask(MFRC522_t *dev, uint8_t reg, uint8_t mask);
 uint8_t MFRC522_RequestA(MFRC522_t *dev, uint8_t *atqa);
 uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid);
 uint8_t MFRC522_ReadUid(MFRC522_t *dev, uint8_t *uid);
+uint8_t MFRC522_Select(MFRC522_t *dev, uint8_t *uid);
 uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t *block_data, uint8_t address);
 uint8_t waitcardRemoval (MFRC522_t *dev);
 uint8_t waitcardDetect (MFRC522_t *dev);

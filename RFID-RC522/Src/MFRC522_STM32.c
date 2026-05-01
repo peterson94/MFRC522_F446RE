@@ -198,6 +198,34 @@ uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID 
     return STATUS_TIMEOUT;
 }
 
+uint8_t MFRC522_Select(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID + BCC
+    DEBUG_LOG("Anticoll");
+    MFRC522_WriteReg(dev, PCD_ComIrqReg, 0x7F);      // Clear IRQs
+    MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
+    MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x00);  // Full frame
+    MFRC522_WriteReg(dev, PCD_FIFODataReg, PICC_SEL_CL1);  // 0x93
+    MFRC522_WriteReg(dev, PCD_FIFODataReg, 0x70);    // Number of valid bytes including SEL and this one
+	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[0]);
+	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[1]);
+	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[2]);
+	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[3]);
+	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0x57); //BCC
+	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xAF); //CRC-A byte0
+	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFD); //CRC-A byte1
+
+    HAL_Delay(2);  // Delay for stability
+    MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Transceive);
+    MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80);
+
+    HAL_Delay(10);
+    MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
+    MFRC522_ReadReg(dev, PCD_FIFODataReg);
+    MFRC522_ReadReg(dev, PCD_FIFODataReg);
+    MFRC522_ReadReg(dev, PCD_FIFODataReg);
+
+    return STATUS_OK;
+
+}
 uint8_t MFRC522_ReadUid(MFRC522_t *dev, uint8_t *uid) {  // Output: uid[4]
     DEBUG_LOG("Reading UID...");
     // Card detected, read UID
@@ -221,20 +249,25 @@ uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t *block_data
 	MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x00);  // Full frame
 
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, PICC_AUTH_A);  // 0x60
+	MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, address);    // Address of the block to read
+	MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
+	MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[0]);
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[1]);
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[2]);
 	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[3]);
+	MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
 
 	HAL_Delay(2);  // Delay for stability
 	MFRC522_WriteReg(dev, PCD_CommandReg, PCD_MFAuthent);
+	MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
 	//MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80); //only "Transceive" command needs it
 
     uint32_t timeout = HAL_GetTick() + 5000;

@@ -131,16 +131,21 @@ int main(void)
 			USER_LOG("CARD ID:%02X %02X %02X %02X", uid[0], uid[1], uid[2], uid[3]);
 			if ((uid[0] == 0x83) && (uid[1] == 0xFB) &&(uid[2] == 0x1B) &&(uid[3] == 0x34)){
 			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
-			  HAL_Delay(1000);
+			  HAL_Delay(1);
 			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
 			}
 
 			else if ((uid[0] == 0x93) && (uid[1] == 0x24) &&(uid[2] == 0x41) &&(uid[3] == 0xCD)){
 			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
-			  HAL_Delay(1000);
+			  HAL_Delay(1);
 			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
 
 			}
+		}
+
+		if (MFRC522_Select(&rfID, uid) == STATUS_OK)
+		{
+			USER_LOG("SELECT_SUCCESS");
 		}
 
 		if (MFRC522_Authentication(&rfID, uid, data_block, 0x0A) == STATUS_OK)
