@@ -70,7 +70,7 @@ int _write(int fd, unsigned char *buf, int len) {
 }
 
 uint8_t uid[4];
-uint8_t data_block[16];
+uint8_t data_block[18];
 
 MFRC522_t rfID = {&hspi1, CS_GPIO_Port, CS_Pin, RESET_GPIO_Port, RESET_Pin};
 
@@ -148,16 +148,21 @@ int main(void)
 			USER_LOG("SELECT_SUCCESS");
 		}
 
-		if (MFRC522_Authentication(&rfID, uid, data_block, 0x00) == STATUS_OK)
+		if (MFRC522_Authentication(&rfID, uid, data_block, 0x0A) == STATUS_OK)
 		{
 			USER_LOG("AUTH_SUCCESS");
 		}
 
-		if (MFRC522_Read_Block(&rfID, 0x00) == STATUS_OK)
+		if (MFRC522_Read_Block(&rfID, 0x0A, data_block) == STATUS_OK)
 		{
+			USER_LOG("BLOCK_DATA:");
+			for (int i = 0; i < sizeof(data_block)-2; i++){
+				USER_LOG("%02X ",data_block[i]);
+			}
 
 		}
-		waitcardRemoval(&rfID);
+		MFRC522_Init(&rfID);
+		//waitcardRemoval(&rfID);
 	}
   }
 	  /* USER CODE END 3 */

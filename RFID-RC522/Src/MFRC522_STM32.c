@@ -232,7 +232,7 @@ uint8_t MFRC522_Select(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID + 
 
 }
 
-uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address) {  // Returns 4-byte UID + BCC
+uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data) {  // Returns 4-byte UID + BCC
     DEBUG_LOG("Read block...");
     MFRC522_WriteReg(dev, PCD_ComIrqReg, 0x7F);      // Clear IRQs
     MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
@@ -241,8 +241,8 @@ uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address) {  // Returns 4-byte
 
     MFRC522_WriteReg(dev, PCD_FIFODataReg, PICC_READ);  // 0x30
     MFRC522_WriteReg(dev, PCD_FIFODataReg, address);
-	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0x83); //CRC-A byte0
-	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xB8); //CRC-A byte1
+	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0x58); //CRC-A byte0
+	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0x07); //CRC-A byte1
 
 	MFRC522_ReadReg(dev, PCD_ComIrqReg);
 	MFRC522_ReadReg(dev, PCD_Status2Reg);
@@ -250,15 +250,16 @@ uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address) {  // Returns 4-byte
     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Transceive);
     MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80);
 
-    while (1){
-    	MFRC522_ReadReg(dev, PCD_ComIrqReg);
-    	MFRC522_ReadReg(dev, PCD_FIFODataReg);
+   // while (1){
+   // 	MFRC522_ReadReg(dev, PCD_ComIrqReg);
+   // 	MFRC522_ReadReg(dev, PCD_FIFODataReg);
+   //}
+   //HAL_Delay(10);
+
+   for (int i = 0; i < 18; i++){
+
+	   block_data[i] = MFRC522_ReadReg(dev, PCD_FIFODataReg);
    }
-   HAL_Delay(10);
-   MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
-   MFRC522_ReadReg(dev, PCD_FIFODataReg);
-   MFRC522_ReadReg(dev, PCD_FIFODataReg);
-   MFRC522_ReadReg(dev, PCD_FIFODataReg);
 
     return STATUS_OK;
 
