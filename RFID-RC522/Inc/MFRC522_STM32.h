@@ -79,6 +79,7 @@ uint8_t MFRC522_Select(MFRC522_t *dev, uint8_t *uid);
 uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t *block_data, uint8_t address);
 uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data);
 uint8_t waitcardRemoval (MFRC522_t *dev);
+uint8_t waitcardRemoval_2 (MFRC522_t *dev);
 uint8_t waitcardDetect (MFRC522_t *dev);
 
 #endif

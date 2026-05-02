@@ -12,4 +12,5 @@
 ../Src/MFRC522_STM32.c:267:9:MFRC522_ReadUid	3
 ../Src/MFRC522_STM32.c:283:9:MFRC522_Authentication	6
 ../Src/MFRC522_STM32.c:349:9:waitcardRemoval	2
-../Src/MFRC522_STM32.c:360:9:waitcardDetect	2
+../Src/MFRC522_STM32.c:360:9:waitcardRemoval_2	1
+../Src/MFRC522_STM32.c:374:9:waitcardDetect	2

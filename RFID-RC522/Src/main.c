@@ -130,14 +130,15 @@ int main(void)
 		{
 			USER_LOG("CARD ID:%02X %02X %02X %02X", uid[0], uid[1], uid[2], uid[3]);
 			if ((uid[0] == 0x83) && (uid[1] == 0xFB) &&(uid[2] == 0x1B) &&(uid[3] == 0x34)){
-			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
-			  HAL_Delay(1);
-			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+//			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+//			  HAL_Delay(1000);
+//			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+			  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_8);
 			}
 
 			else if ((uid[0] == 0x93) && (uid[1] == 0x24) &&(uid[2] == 0x41) &&(uid[3] == 0xCD)){
 			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
-			  HAL_Delay(1);
+			  HAL_Delay(1000);
 			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
 
 			}
@@ -155,14 +156,16 @@ int main(void)
 
 		if (MFRC522_Read_Block(&rfID, 0x0A, data_block) == STATUS_OK)
 		{
-			USER_LOG("BLOCK_DATA:");
-			for (int i = 0; i < sizeof(data_block)-2; i++){
-				USER_LOG("%02X ",data_block[i]);
-			}
+			USER_LOG("BLOCK_DATA: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",data_block[0],data_block[1],data_block[2],data_block[3],data_block[4],data_block[5],data_block[6],data_block[7],data_block[8],data_block[9],data_block[10],data_block[11],data_block[12],data_block[13],data_block[14],data_block[15]);
+//			for (int i = 0; i < sizeof(data_block)-2; i++){
+//				USER_LOG("%02X ",data_block[i]);
+//			}
 
 		}
-		MFRC522_Init(&rfID);
-		//waitcardRemoval(&rfID);
+//		MFRC522_Init(&rfID);
+		waitcardRemoval_2(&rfID);
+		waitcardRemoval(&rfID);
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_8);
 	}
   }
 	  /* USER CODE END 3 */

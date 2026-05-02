@@ -357,6 +357,20 @@ uint8_t waitcardRemoval (MFRC522_t *dev){
     }
 }
 
+uint8_t waitcardRemoval_2 (MFRC522_t *dev){
+	MFRC522_ReadReg(dev, PCD_Status2Reg);
+//    USER_LOG("Waiting for card removal...");
+    MFRC522_WriteReg(dev, PCD_Status2Reg, 0x00);
+    MFRC522_AntennaOff(dev);
+    HAL_Delay(5);
+    MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
+//    while (1) {
+//    	MFRC522_ReadReg(dev, PCD_Status2Reg);
+//
+//        }
+//        HAL_Delay(100); // Poll every 100ms to check if card is still present
+}
+
 uint8_t waitcardDetect (MFRC522_t *dev){
 	atqa[0] = atqa[1] = 0;
 	USER_LOG("Waiting for the card...");
