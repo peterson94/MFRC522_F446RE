@@ -158,8 +158,10 @@ uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID 
     MFRC522_WriteReg(dev, PCD_ComIrqReg, 0x7F);      // Clear IRQs
     MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
     MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x00);  // Full frame
+
     MFRC522_WriteReg(dev, PCD_FIFODataReg, PICC_SEL_CL1);  // 0x93
     MFRC522_WriteReg(dev, PCD_FIFODataReg, 0x20);    // Fixed CRC
+
     HAL_Delay(2);  // Delay for stability
     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Transceive);
     MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80);
@@ -216,15 +218,6 @@ uint8_t MFRC522_Select(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID + 
     MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
     MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x00);  // Full frame
 
-
-
-//  MFRC522_WriteReg(dev, PCD_FIFODataReg, PICC_SEL_CL1);  // 0x93
-//  MFRC522_WriteReg(dev, PCD_FIFODataReg, 0x70);    // Number of valid bytes including SEL and this one
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[0]);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[1]);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[2]);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[3]);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0x57); //BCC
 	FIFO_64B TEMP = {{},0,0};
 	FIFO_ADD(&TEMP,PICC_SEL_CL1);
 	FIFO_ADD(&TEMP,0x70);
@@ -236,24 +229,18 @@ uint8_t MFRC522_Select(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID + 
 
 	uint8_t A, B;
 	ComputeCrc(CRC_A, TEMP.buffer, TEMP.head, &A, &B);
-//	USER_LOG("%02X %02X",A,B);
 	FIFO_ADD(&TEMP,A);
 	FIFO_ADD(&TEMP,B);
-
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xF0); //CRC-A byte0
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xA2); //CRC-A byte1
 
 	for (int i = 0; i < TEMP.head; i++){
 		MFRC522_WriteReg(dev, PCD_FIFODataReg, TEMP.buffer[i]);
 	}
 
-	MFRC522_ReadReg(dev, PCD_ComIrqReg);
     HAL_Delay(2);  // Delay for stability
     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Transceive);
     MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80);
 
     return STATUS_OK;
-
 }
 
 uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data) {  // Returns 4-byte UID + BCC
@@ -275,13 +262,7 @@ uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data)
 	for (int i = 0; i < TEMP.head; i++){
 		MFRC522_WriteReg(dev, PCD_FIFODataReg, TEMP.buffer[i]);
 	}
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, PICC_READ);  // 0x30
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, address);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0x58); //CRC-A byte0
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0x07); //CRC-A byte1
 
-	MFRC522_ReadReg(dev, PCD_ComIrqReg);
-	MFRC522_ReadReg(dev, PCD_Status2Reg);
     HAL_Delay(2);  // Delay for stability
     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Transceive);
     MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80);
@@ -336,34 +317,11 @@ uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t address) { 
 		MFRC522_WriteReg(dev, PCD_FIFODataReg, TEMP.buffer[i]);
 	}
 
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, PICC_AUTH_B);  // 0x61
-//	MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, address);    // Address of the block to read
-//	MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
-//
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, 0xFF);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[0]);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[1]);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[2]);
-//	MFRC522_WriteReg(dev, PCD_FIFODataReg, uid[3]);
-//
-//	MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
-
 	HAL_Delay(2);  // Delay for stability
 	MFRC522_WriteReg(dev, PCD_CommandReg, PCD_MFAuthent);
-//	MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
-//	MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80); //only "Transceive" command needs it
 
     uint32_t timeout = HAL_GetTick() + 5000;
     while (HAL_GetTick() < timeout){
-    	MFRC522_ReadReg(dev, PCD_ErrorReg);
-    	MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
-    	MFRC522_ReadReg(dev, 0x0B); // water level reg.
     	uint8_t irq = MFRC522_ReadReg(dev, PCD_ComIrqReg);
         uint8_t status2 = MFRC522_ReadReg(dev, PCD_Status2Reg);
 
