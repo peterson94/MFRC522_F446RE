@@ -3,9 +3,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
-#define CRC_A 1
-#define CRC_B 2
-#define BYTE unsigned char
+#define CRC_A 0x01
+#define CRC_B 0x02
 
 unsigned short UpdateCrc(uint8_t ch, uint16_t *lpwCrc){
 	ch = (ch^(uint8_t)((*lpwCrc) & 0x00FF));
@@ -14,9 +13,9 @@ unsigned short UpdateCrc(uint8_t ch, uint16_t *lpwCrc){
 	return(*lpwCrc);
 }
 
-void ComputeCrc(int CRCType, uint8_t *Data, uint8_t Length, uint8_t *TransmitFirst, uint8_t *TransmitSecond){
+void ComputeCrc(uint8_t CRCType, uint8_t *Data, uint8_t Length, uint8_t *TransmitFirst, uint8_t *TransmitSecond){
 	uint8_t chBlock;
-	unsigned short wCrc;
+	uint16_t wCrc;
 
 	switch(CRCType) {
 		case CRC_A:

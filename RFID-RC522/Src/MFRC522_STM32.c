@@ -5,13 +5,13 @@
 uint8_t atqa[2];
 
 void FIFO_ADD(FIFO_64B * FIFO, uint8_t C){
-    uint8_t *index = &(FIFO->head);
+    uint8_t index = FIFO->head;
 
-    if (*index == FIFO->tail) {
+    if (index == FIFO->tail) {
         FIFO->head = 0;
     }
 
-    FIFO->buffer[*index] = C;
+    FIFO->buffer[index] = C;
     FIFO->head += 1;
 }
 
