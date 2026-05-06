@@ -10,7 +10,8 @@
 ../Src/MFRC522_STM32.c:156:9:MFRC522_Anticoll	40	static
 ../Src/MFRC522_STM32.c:215:9:MFRC522_Select	104	static
 ../Src/MFRC522_STM32.c:246:9:MFRC522_Read_Block	120	static
-../Src/MFRC522_STM32.c:278:9:MFRC522_ReadUid	32	static
-../Src/MFRC522_STM32.c:296:9:MFRC522_Authentication	104	static
-../Src/MFRC522_STM32.c:360:9:waitcardRemoval	16	static
-../Src/MFRC522_STM32.c:377:9:waitcardDetect	16	static
+../Src/MFRC522_STM32.c:278:9:MFRC522_Write_Block	120	static
+../Src/MFRC522_STM32.c:340:9:MFRC522_ReadUid	32	static
+../Src/MFRC522_STM32.c:358:9:MFRC522_Authentication	104	static
+../Src/MFRC522_STM32.c:422:9:waitcardRemoval	16	static
+../Src/MFRC522_STM32.c:439:9:waitcardDetect	16	static

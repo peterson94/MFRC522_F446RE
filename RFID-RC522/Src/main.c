@@ -70,8 +70,10 @@ int _write(int fd, unsigned char *buf, int len) {
 }
 
 uint8_t uid[4];
-uint8_t data_block[18]; // 16 data byte + 2 CRC byte
+uint8_t read_block[18]; // 16 data byte + 2 CRC byte
+uint8_t write_block[16];
 MFRC522_t rfID = {&hspi1, CS_GPIO_Port, CS_Pin, RESET_GPIO_Port, RESET_Pin};
+uint8_t INCR = 0x00;
 //FIFO_64B FIFO = {{},0,63};
 
 /* USER CODE END 0 */
@@ -148,16 +150,29 @@ int main(void)
 				USER_LOG("AUTH_SUCCESS");
 			}
 
-			if (MFRC522_Read_Block(&rfID, 0x0A, data_block) == STATUS_OK){
+//			if (MFRC522_Read_Block(&rfID, 0x0A, read_block, sizeof(read_block)) == STATUS_OK){
+////				USER_LOG("BLOCK_DATA: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",data_block[0],data_block[1],data_block[2],data_block[3],data_block[4],data_block[5],data_block[6],data_block[7],data_block[8],data_block[9],data_block[10],data_block[11],data_block[12],data_block[13],data_block[14],data_block[15]);
+//				USER_LOG_N("[USER] ");
+//				for (int i = 0; i < sizeof(read_block)-2; i++){
+//					USER_LOG_N("%02X ",read_block[i]);
+//				}
+//
+//				USER_LOG_N("\r\n");
+//			}
+
+			for (int n = 0; n < sizeof(write_block); n++){
+				write_block[n] = INCR++;
+			}
+
+			if (MFRC522_Write_Block(&rfID, 0x0A, write_block, sizeof(write_block)) == STATUS_OK){
 //				USER_LOG("BLOCK_DATA: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",data_block[0],data_block[1],data_block[2],data_block[3],data_block[4],data_block[5],data_block[6],data_block[7],data_block[8],data_block[9],data_block[10],data_block[11],data_block[12],data_block[13],data_block[14],data_block[15]);
 				USER_LOG_N("[USER] ");
-				for (int i = 0; i < sizeof(data_block)-2; i++){
-					USER_LOG_N("%02X ",data_block[i]);
+				for (int i = 0; i < sizeof(write_block); i++){
+					USER_LOG_N("%02X ",write_block[i]);
 				}
 
 				USER_LOG_N("\r\n");
 			}
-
 			waitcardRemoval(&rfID);
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);

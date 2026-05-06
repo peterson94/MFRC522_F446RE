@@ -243,7 +243,7 @@ uint8_t MFRC522_Select(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID + 
     return STATUS_OK;
 }
 
-uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data) {  // Returns 4-byte UID + BCC
+uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data, size_t block_length) {  // Returns 4-byte UID + BCC
 	DEBUG_LOG("Read block");
 	MFRC522_WriteReg(dev, PCD_ComIrqReg, 0x7F);      // Clear IRQs
 	MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
@@ -268,11 +268,73 @@ uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data)
     MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80);
 
     HAL_Delay(1);
-	for (int i = 0; i < 18; i++){
+	for (int i = 0; i < block_length; i++){
 		block_data[i] = MFRC522_ReadReg(dev, PCD_FIFODataReg);
 	}
 
 	return STATUS_OK;
+}
+
+uint8_t MFRC522_Write_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data, size_t block_length){
+	DEBUG_LOG("Write block");
+	MFRC522_WriteReg(dev, PCD_ComIrqReg, 0x7F);      // Clear IRQs
+	MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
+	MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x00);  // Full frame
+	MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle); // Idle state
+
+	FIFO_64B TEMP = {{},0,0};
+	FIFO_ADD(&TEMP, PICC_WRITE);
+	FIFO_ADD(&TEMP, address);
+
+	uint8_t A, B;
+	ComputeCrc(CRC_A, TEMP.buffer, TEMP.head, &A, &B);
+	FIFO_ADD(&TEMP, A);
+	FIFO_ADD(&TEMP, B);
+
+	for (int i = 0; i < TEMP.head; i++){
+		MFRC522_WriteReg(dev, PCD_FIFODataReg, TEMP.buffer[i]);
+	}
+
+    HAL_Delay(2);  // Delay for stability
+    MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Transceive);
+    MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80);
+
+    uint32_t timeout = HAL_GetTick() + 5000;
+    while (HAL_GetTick() < timeout) {
+        if (MFRC522_ReadReg(dev, PCD_FIFODataReg) == 0x0A) {  // ACK received
+        	MFRC522_WriteReg(dev, PCD_ComIrqReg, 0x7F);      // Clear IRQs
+        	MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
+
+        	TEMP.head = 0;
+        	for (int i = 0; i < block_length; i++){ //Upload temporary FIFO with the content to write
+        		FIFO_ADD(&TEMP, block_data[i]);
+        	}
+        	ComputeCrc(CRC_A, TEMP.buffer, TEMP.head, &A, &B);
+        	FIFO_ADD(&TEMP, A);
+        	FIFO_ADD(&TEMP, B);
+
+        	// Send content to write
+        	for (int i = 0; i < TEMP.head; i++){
+        		MFRC522_WriteReg(dev, PCD_FIFODataReg, TEMP.buffer[i]);
+        	}
+            HAL_Delay(2);  // Delay for stability
+            MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Transceive);
+            MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80);
+
+            while (MFRC522_ReadReg(dev, PCD_FIFODataReg) != 0x0A){
+            //wait
+            }
+
+            return STATUS_OK;
+        }
+
+    }
+
+    DEBUG_LOG("Writing timeout");
+    MFRC522_AntennaOff(dev);
+    HAL_Delay(5);
+    MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
+    return STATUS_TIMEOUT;
 }
 
 uint8_t MFRC522_ReadUid(MFRC522_t *dev, uint8_t *uid) {  // Output: uid[4]
