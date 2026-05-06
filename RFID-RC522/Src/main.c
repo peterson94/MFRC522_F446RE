@@ -44,7 +44,6 @@
 SPI_HandleTypeDef hspi1;
 
 UART_HandleTypeDef huart2;
-uint8_t data[] = "Hello\r\n";
 
 /* USER CODE BEGIN PV */
 
@@ -84,41 +83,41 @@ uint8_t INCR = 0x00;
   */
 int main(void)
 {
-	/* USER CODE BEGIN 1 */
+  /* USER CODE BEGIN 1 */
 
-	/* USER CODE END 1 */
+  /* USER CODE END 1 */
+  
 
+  /* MCU Configuration--------------------------------------------------------*/
 
-	/* MCU Configuration--------------------------------------------------------*/
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
 
-	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-	HAL_Init();
+  /* USER CODE BEGIN Init */
 
-	/* USER CODE BEGIN Init */
+  /* USER CODE END Init */
 
-	/* USER CODE END Init */
+  /* Configure the system clock */
+  SystemClock_Config();
 
-	/* Configure the system clock */
-	SystemClock_Config();
+  /* USER CODE BEGIN SysInit */
 
-	/* USER CODE BEGIN SysInit */
+  /* USER CODE END SysInit */
 
-	/* USER CODE END SysInit */
-
-	/* Initialize all configured peripherals */
-	MX_GPIO_Init();
-	MX_SPI1_Init();
-	MX_USART2_UART_Init();
-	/* USER CODE BEGIN 2 */
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_SPI1_Init();
+  MX_USART2_UART_Init();
+  /* USER CODE BEGIN 2 */
 	MFRC522_Init(&rfID);
-	/* USER CODE END 2 */
+  /* USER CODE END 2 */
 
-	/* Infinite loop */
-	/* USER CODE BEGIN WHILE */
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
 	while (1){
-		/* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-		/* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
 //		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_8);
 //		HAL_Delay(500);
 //		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_9);
@@ -150,35 +149,43 @@ int main(void)
 				USER_LOG("AUTH_SUCCESS");
 			}
 
-//			if (MFRC522_Read_Block(&rfID, 0x0A, read_block, sizeof(read_block)) == STATUS_OK){
-////				USER_LOG("BLOCK_DATA: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",data_block[0],data_block[1],data_block[2],data_block[3],data_block[4],data_block[5],data_block[6],data_block[7],data_block[8],data_block[9],data_block[10],data_block[11],data_block[12],data_block[13],data_block[14],data_block[15]);
-//				USER_LOG_N("[USER] ");
-//				for (int i = 0; i < sizeof(read_block)-2; i++){
-//					USER_LOG_N("%02X ",read_block[i]);
-//				}
-//
-//				USER_LOG_N("\r\n");
-//			}
+			if (HAL_GPIO_ReadPin(BUTTON_GPIO_Port, BUTTON_Pin)){
+				USER_LOG("Start reading...");
+				if (MFRC522_Read_Block(&rfID, 0x0A, read_block, sizeof(read_block)) == STATUS_OK){
+//				USER_LOG("BLOCK_DATA: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",data_block[0],data_block[1],data_block[2],data_block[3],data_block[4],data_block[5],data_block[6],data_block[7],data_block[8],data_block[9],data_block[10],data_block[11],data_block[12],data_block[13],data_block[14],data_block[15]);
+					USER_LOG_N("[USER] ");
+					for (int i = 0; i < sizeof(read_block)-2; i++){
+						USER_LOG_N("%02X ",read_block[i]);
+					}
 
-			for (int n = 0; n < sizeof(write_block); n++){
-				write_block[n] = INCR++;
+					USER_LOG_N("\r\n");
+				}
 			}
 
-			if (MFRC522_Write_Block(&rfID, 0x0A, write_block, sizeof(write_block)) == STATUS_OK){
-//				USER_LOG("BLOCK_DATA: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",data_block[0],data_block[1],data_block[2],data_block[3],data_block[4],data_block[5],data_block[6],data_block[7],data_block[8],data_block[9],data_block[10],data_block[11],data_block[12],data_block[13],data_block[14],data_block[15]);
-				USER_LOG_N("[USER] ");
-				for (int i = 0; i < sizeof(write_block); i++){
-					USER_LOG_N("%02X ",write_block[i]);
+			else
+			{
+				USER_LOG("Start writing...");
+				for (int n = 0; n < sizeof(write_block); n++){
+					write_block[n] = INCR++;
 				}
 
-				USER_LOG_N("\r\n");
+				if (MFRC522_Write_Block(&rfID, 0x0A, write_block, sizeof(write_block)) == STATUS_OK){
+//				USER_LOG("BLOCK_DATA: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",data_block[0],data_block[1],data_block[2],data_block[3],data_block[4],data_block[5],data_block[6],data_block[7],data_block[8],data_block[9],data_block[10],data_block[11],data_block[12],data_block[13],data_block[14],data_block[15]);
+					USER_LOG_N("[USER] ");
+					for (int i = 0; i < sizeof(write_block); i++){
+						USER_LOG_N("%02X ",write_block[i]);
+					}
+
+					USER_LOG_N("\r\n");
+				}
 			}
+
 			waitcardRemoval(&rfID);
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
 		}
 	}
-	  /* USER CODE END 3 */
+  /* USER CODE END 3 */
 }
 
 /**
@@ -300,10 +307,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, RESET_Pin|CS_Pin|GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : BUTTON_Pin */
+  GPIO_InitStruct.Pin = BUTTON_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(BUTTON_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : RESET_Pin CS_Pin PA8 PA9 */
   GPIO_InitStruct.Pin = RESET_Pin|CS_Pin|GPIO_PIN_8|GPIO_PIN_9;
@@ -324,13 +338,13 @@ static void MX_GPIO_Init(void)
   */
 void Error_Handler(void)
 {
-	/* USER CODE BEGIN Error_Handler_Debug */
+  /* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
 	__disable_irq();
 	while (1)
 	{
 	}
-	/* USER CODE END Error_Handler_Debug */
+  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT

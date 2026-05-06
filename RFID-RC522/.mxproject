@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Workspace/RFID-RC522/RFID-RC522/Inc
+HeaderPath=C:/Workspace/MFRC522_F446RE/RFID-RC522/Inc
 HeaderFiles=stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;
-SourcePath=C:/Workspace/RFID-RC522/RFID-RC522/Src
+SourcePath=C:/Workspace/MFRC522_F446RE/RFID-RC522/Src
 SourceFiles=stm32f4xx_it.c;stm32f4xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]
