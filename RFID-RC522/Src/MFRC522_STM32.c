@@ -250,7 +250,7 @@ uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t address) { 
 	MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x00);  // Full frame
 
 	FIFO_64B TEMP = {{},0,0};
-	FIFO_ADD(&TEMP, PICC_AUTH_B);
+	FIFO_ADD(&TEMP, PICC_AUTH_A);
 	FIFO_ADD(&TEMP, address);
 	FIFO_ADD(&TEMP, 0xFF);
 	FIFO_ADD(&TEMP, 0xFF);
@@ -267,7 +267,7 @@ uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t address) { 
 		MFRC522_WriteReg(dev, PCD_FIFODataReg, TEMP.buffer[i]);
 	}
 
-	HAL_Delay(2);  // Delay for stability
+	//HAL_Delay(2);  // Delay for stability
 	MFRC522_WriteReg(dev, PCD_CommandReg, PCD_MFAuthent);
 
     uint32_t timeout = HAL_GetTick() + 25;
@@ -286,18 +286,18 @@ uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t address) { 
 				if (err & 0x1D){
 					DEBUG_LOG("Authentication error: 0x%02X", err);
 					MFRC522_AntennaOff(dev);
-					HAL_Delay(5);
+					//HAL_Delay(5);
 					MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
 					return STATUS_ERROR;
 				}
 
 				DEBUG_LOG("Authentication successful.");
 				MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
-				HAL_Delay(2);  // Post-command delay
+				//HAL_Delay(2);  // Post-command delay
 				return STATUS_OK;
 			}
 
-			HAL_Delay(1);  // Mimic debug log timing
+			//HAL_Delay(1);  // Mimic debug log timing
         }
     }
     USER_LOG("Authentication timeout");
@@ -327,15 +327,29 @@ uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data,
 		MFRC522_WriteReg(dev, PCD_FIFODataReg, TEMP.buffer[i]);
 	}
 
-    HAL_Delay(2);  // Delay for stability
+    //HAL_Delay(2);  // Delay for stability
     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Transceive);
     MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80);
 
-	for (int i = 0; i < block_length; i++){
-		block_data[i] = MFRC522_ReadReg(dev, PCD_FIFODataReg);
-	}
+    uint32_t timeout = HAL_GetTick() + 25;
 
-	return STATUS_OK;
+    while (HAL_GetTick() < timeout)
+    {
+    	if (MFRC522_ReadReg(dev, PCD_ComIrqReg) & 0x20)
+    	{
+    		for (int i = 0; i < block_length; i++){
+    			block_data[i] = MFRC522_ReadReg(dev, PCD_FIFODataReg);
+    		}
+
+    		return STATUS_OK;
+    	}
+    }
+
+    USER_LOG("Authentication timeout");
+    MFRC522_AntennaOff(dev);
+    HAL_Delay(5);
+    MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
+    return STATUS_TIMEOUT;
 }
 
 uint8_t MFRC522_Write_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data, size_t block_length) {

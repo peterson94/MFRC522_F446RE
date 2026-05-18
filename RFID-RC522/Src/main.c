@@ -42,7 +42,9 @@
 
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi1;
+
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 
@@ -53,6 +55,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_DMA_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -69,12 +72,15 @@ int _write(int fd, unsigned char *buf, int len) {
 
 MFRC522_t rfID = {&hspi1, CS_GPIO_Port, CS_Pin, RESET_GPIO_Port, RESET_Pin};
 uint8_t uid[4];
+uint8_t ADDR_Sector;
+uint8_t ADDR_Block;
 uint8_t read_block[18]; // 16 data byte + 2 CRC byte
 uint8_t write_block[16];
-uint8_t INCR = 0x00;
+uint8_t tag_full[64][16]; //total read_block of one tag in a matrix
+uint8_t INCR = 0x01;
 uint8_t UART_received[10];
 uint8_t RW = 0x01;
-
+uint8_t FULL_READ;
 /* USER CODE END 0 */
 
 /**
@@ -108,17 +114,36 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   MX_USART2_UART_Init();
+  MX_DMA_Init();
   /* USER CODE BEGIN 2 */
   MFRC522_Init(&rfID);
   /* USER CODE END 2 */
+  FULL_READ = 0;
+  //FULL_READ = 1;
+  ADDR_Sector = 2;
+  ADDR_Block = 2;
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  /* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-  /* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
+
+//	  HAL_UART_Receive(&huart2, UART_received, 1, 50);
+//
+//	  if (UART_received[0]=='R'){
+//		  RW = 0x01;
+//	  }
+//
+//	  if (UART_received[0]=='W'){
+//		  RW = 0x00;
+//	  }
+//
+//	  if (UART_received[0]=='F'){
+//		  FULL_READ = 0x01;
+//	  }
 
 	  if (waitcardDetect(&rfID) == STATUS_OK)
 	  {
@@ -137,24 +162,50 @@ int main(void)
 			  USER_LOG("SELECT_SUCCESS");
 		  }
 
-		  if (MFRC522_Authentication(&rfID, uid, 0x0A) == STATUS_OK){
-			  USER_LOG("AUTH_SUCCESS");
-		  }
-
-		  HAL_UART_Receive(&huart2, UART_received, 1, 50);
-
-		  if (UART_received[0]=='R'){
-			  RW = 0x01;
-		  }
-
-		  if (UART_received[0]=='W'){
-			  RW = 0x00;
-		  }
-
-		  if (HAL_GPIO_ReadPin(BUTTON_GPIO_Port, BUTTON_Pin) && RW)
+		  if (FULL_READ)
 		  {
+			  for (ADDR_Sector = 0; ADDR_Sector < 16; ADDR_Sector++)
+			  {
+				  if (MFRC522_Authentication(&rfID, uid, ADDR_Sector<<2) == STATUS_OK){
+					  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
+				  }
+
+				  //USER_LOG("Start full reading...");
+
+				  for (ADDR_Block = 0; ADDR_Block < 4; ADDR_Block++)
+				  {
+					  if (MFRC522_Read_Block(&rfID, ((ADDR_Sector<<2) + ADDR_Block), read_block, sizeof(read_block)) == STATUS_OK)
+					  {
+						  //USER_LOG_N("|block-%d| ",ADDR_Block);
+						  for (int i = 0; i < sizeof(read_block)-2; i++){
+							  //USER_LOG_N("%02X ",read_block[i]);
+							  tag_full[(ADDR_Sector<<2) + ADDR_Block][i] = read_block[i];
+						  }
+						  //USER_LOG_N("\r\n");
+					  }
+				  }
+			  }
+			  USER_LOG_N("\r\n");
+			  for (int i = 0; i<64; i++){
+				  for (int j = 0; j<16; j++){
+					  USER_LOG_N("%02X ",tag_full[i][j]);
+				  }
+				  USER_LOG_N("\r\n");
+				  if ( i%4 == 3){
+					  USER_LOG_N("________");
+					  USER_LOG_N("\r\n");
+				  }
+			  }
+		  }
+
+		  else if (HAL_GPIO_ReadPin(BUTTON_GPIO_Port, BUTTON_Pin) && RW)
+		  {
+			  if (MFRC522_Authentication(&rfID, uid, (ADDR_Sector<<2) + ADDR_Block) == STATUS_OK){
+				  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
+			  }
+
 			  USER_LOG("Start reading...");
-			  if (MFRC522_Read_Block(&rfID, 0x0A, read_block, sizeof(read_block)) == STATUS_OK)
+			  if (MFRC522_Read_Block(&rfID, (ADDR_Sector<<2) + ADDR_Block, read_block, sizeof(read_block)) == STATUS_OK)
 			  {
 				  for (int i = 0; i < sizeof(read_block)-2; i++){
 					  USER_LOG_N("%02X ",read_block[i]);
@@ -165,11 +216,24 @@ int main(void)
 
 		  else
 		  {
-			  USER_LOG("Start writing...");
-			  for (int n = 0; n < sizeof(write_block); n++){
-				  write_block[n] = INCR++;
+			  if (MFRC522_Authentication(&rfID, uid, (ADDR_Sector<<2) + ADDR_Block) == STATUS_OK){
+				  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
 			  }
-			  if (MFRC522_Write_Block(&rfID, 0x0A, write_block, sizeof(write_block)) == STATUS_OK)
+
+			  USER_LOG("Start writing...");
+
+			  for (int n = 0; n < sizeof(write_block); n++)
+			  {
+				  if (INCR){
+					  write_block[n] = INCR++;
+				  }
+
+				  else{
+					  write_block[n] = INCR; //ERASE
+				  }
+			  }
+
+			  if (MFRC522_Write_Block(&rfID, (ADDR_Sector<<2) + ADDR_Block, write_block, sizeof(write_block)) == STATUS_OK)
 			  {
 				  for (int i = 0; i < sizeof(write_block); i++){
 					  USER_LOG_N("%02X ",write_block[i]);
@@ -279,7 +343,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 9600;
+  huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -293,6 +357,22 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
+
+}
+
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 
 }
 
