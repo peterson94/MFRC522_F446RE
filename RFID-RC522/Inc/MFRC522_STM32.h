@@ -58,6 +58,13 @@
 #define STATUS_ERROR       1
 #define STATUS_TIMEOUT     2
 
+// MENU status
+#define UID_ONLY		   0
+#define READ_BLOCK		   1
+#define FULL_READ		   2
+#define WRITE_BLOCK		   3
+#define FULL_ERASE		   4
+
 typedef struct {
     SPI_HandleTypeDef *hspi;
     GPIO_TypeDef *csPort;

@@ -79,8 +79,9 @@ uint8_t write_block[16];
 uint8_t tag_full[64][16]; //total read_block of one tag in a matrix
 uint8_t INCR = 0x01;
 uint8_t UART_received[10];
-uint8_t RW = 0x01;
-uint8_t FULL_READ;
+
+volatile uint8_t MENU;
+uint8_t MENU_P;
 /* USER CODE END 0 */
 
 /**
@@ -118,11 +119,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   MFRC522_Init(&rfID);
   /* USER CODE END 2 */
-  FULL_READ = 0;
-  //FULL_READ = 1;
-  ADDR_Sector = 2;
-  ADDR_Block = 2;
-
+  MENU = UID_ONLY;
+  USER_LOG("Press blue button for more action.");
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -145,6 +143,8 @@ int main(void)
 //		  FULL_READ = 0x01;
 //	  }
 
+
+
 	  if (waitcardDetect(&rfID) == STATUS_OK)
 	  {
 		  if (MFRC522_ReadUid(&rfID, uid) == STATUS_OK)
@@ -158,87 +158,97 @@ int main(void)
 			  }
 		  }
 
-		  if (MFRC522_Select(&rfID, uid) == STATUS_OK){
-			  USER_LOG("SELECT_SUCCESS");
-		  }
-
-		  if (FULL_READ)
+		  if (MENU != UID_ONLY)
 		  {
-			  for (ADDR_Sector = 0; ADDR_Sector < 16; ADDR_Sector++)
+			  if (MFRC522_Select(&rfID, uid) == STATUS_OK){
+				  USER_LOG("SELECT_SUCCESS");
+			  }
+
+			  if (MENU == FULL_READ)
 			  {
-				  if (MFRC522_Authentication(&rfID, uid, ADDR_Sector<<2) == STATUS_OK){
-					  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
-				  }
-
-				  //USER_LOG("Start full reading...");
-
-				  for (ADDR_Block = 0; ADDR_Block < 4; ADDR_Block++)
+				  for (ADDR_Sector = 0; ADDR_Sector < 16; ADDR_Sector++)
 				  {
-					  if (MFRC522_Read_Block(&rfID, ((ADDR_Sector<<2) + ADDR_Block), read_block, sizeof(read_block)) == STATUS_OK)
+					  if (MFRC522_Authentication(&rfID, uid, ADDR_Sector<<2) == STATUS_OK){
+						  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
+					  }
+
+					  //USER_LOG("Start full reading...");
+
+					  for (ADDR_Block = 0; ADDR_Block < 4; ADDR_Block++)
 					  {
-						  //USER_LOG_N("|block-%d| ",ADDR_Block);
-						  for (int i = 0; i < sizeof(read_block)-2; i++){
-							  //USER_LOG_N("%02X ",read_block[i]);
-							  tag_full[(ADDR_Sector<<2) + ADDR_Block][i] = read_block[i];
+						  if (MFRC522_Read_Block(&rfID, ((ADDR_Sector<<2) + ADDR_Block), read_block, sizeof(read_block)) == STATUS_OK)
+						  {
+							  //USER_LOG_N("|block-%d| ",ADDR_Block);
+							  for (int i = 0; i < sizeof(read_block)-2; i++){
+								  //USER_LOG_N("%02X ",read_block[i]);
+								  tag_full[(ADDR_Sector<<2) + ADDR_Block][i] = read_block[i];
+							  }
+							  //USER_LOG_N("\r\n");
 						  }
-						  //USER_LOG_N("\r\n");
+					  }
+				  }
+				  USER_LOG_N("\r\n");
+				  for (int i = 0; i<64; i++){
+					  for (int j = 0; j<16; j++){
+						  USER_LOG_N("%02X ",tag_full[i][j]);
+					  }
+					  USER_LOG_N("\r\n");
+					  if ( i%4 == 3){
+						  USER_LOG_N("________");
+						  USER_LOG_N("\r\n");
 					  }
 				  }
 			  }
-			  USER_LOG_N("\r\n");
-			  for (int i = 0; i<64; i++){
-				  for (int j = 0; j<16; j++){
-					  USER_LOG_N("%02X ",tag_full[i][j]);
+
+			  if (MENU == READ_BLOCK)
+			  {
+				  ADDR_Sector = 2;
+				  ADDR_Block = 2;
+
+				  if (MFRC522_Authentication(&rfID, uid, (ADDR_Sector<<2) + ADDR_Block) == STATUS_OK){
+					  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
 				  }
-				  USER_LOG_N("\r\n");
-				  if ( i%4 == 3){
-					  USER_LOG_N("________");
+
+				  USER_LOG("Start reading...");
+
+				  if (MFRC522_Read_Block(&rfID, (ADDR_Sector<<2) + ADDR_Block, read_block, sizeof(read_block)) == STATUS_OK)
+				  {
+					  for (int i = 0; i < sizeof(read_block)-2; i++){
+						  USER_LOG_N("%02X ",read_block[i]);
+					  }
 					  USER_LOG_N("\r\n");
 				  }
 			  }
-		  }
 
-		  else if (HAL_GPIO_ReadPin(BUTTON_GPIO_Port, BUTTON_Pin) && RW)
-		  {
-			  if (MFRC522_Authentication(&rfID, uid, (ADDR_Sector<<2) + ADDR_Block) == STATUS_OK){
-				  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
-			  }
-
-			  USER_LOG("Start reading...");
-			  if (MFRC522_Read_Block(&rfID, (ADDR_Sector<<2) + ADDR_Block, read_block, sizeof(read_block)) == STATUS_OK)
+			  if (MENU == WRITE_BLOCK)
 			  {
-				  for (int i = 0; i < sizeof(read_block)-2; i++){
-					  USER_LOG_N("%02X ",read_block[i]);
-				  }
-				  USER_LOG_N("\r\n");
-			  }
-		  }
+				  ADDR_Sector = 2;
+				  ADDR_Block = 2;
 
-		  else
-		  {
-			  if (MFRC522_Authentication(&rfID, uid, (ADDR_Sector<<2) + ADDR_Block) == STATUS_OK){
-				  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
-			  }
-
-			  USER_LOG("Start writing...");
-
-			  for (int n = 0; n < sizeof(write_block); n++)
-			  {
-				  if (INCR){
-					  write_block[n] = INCR++;
+				  if (MFRC522_Authentication(&rfID, uid, (ADDR_Sector<<2) + ADDR_Block) == STATUS_OK){
+					  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
 				  }
 
-				  else{
-					  write_block[n] = INCR; //ERASE
-				  }
-			  }
+				  USER_LOG("Start writing...");
 
-			  if (MFRC522_Write_Block(&rfID, (ADDR_Sector<<2) + ADDR_Block, write_block, sizeof(write_block)) == STATUS_OK)
-			  {
-				  for (int i = 0; i < sizeof(write_block); i++){
-					  USER_LOG_N("%02X ",write_block[i]);
+				  for (int n = 0; n < sizeof(write_block); n++)
+				  {
+					  if (INCR){
+						  write_block[n] = INCR++;
+					  }
+
+					  else{
+						  write_block[n] = INCR; //ERASE
+					  }
 				  }
-				  USER_LOG_N("\r\n");
+
+				  if (MFRC522_Write_Block(&rfID, (ADDR_Sector<<2) + ADDR_Block, write_block, sizeof(write_block)) == STATUS_OK)
+				  {
+					  for (int i = 0; i < sizeof(write_block); i++){
+						  USER_LOG_N("%02X ",write_block[i]);
+					  }
+					  USER_LOG_N("\r\n");
+				  }
 			  }
 		  }
 
@@ -394,7 +404,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : BUTTON_Pin */
   GPIO_InitStruct.Pin = BUTTON_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(BUTTON_GPIO_Port, &GPIO_InitStruct);
 
@@ -405,10 +415,24 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	MENU++;
 
+	if (MENU > 4){
+	  MENU = 0;
+	}
+
+	USER_LOG("MENU: %d",MENU);
+
+}
 /* USER CODE END 4 */
 
 /**
