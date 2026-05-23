@@ -74,14 +74,14 @@ MFRC522_t rfID = {&hspi1, CS_GPIO_Port, CS_Pin, RESET_GPIO_Port, RESET_Pin};
 uint8_t uid[4];
 uint8_t ADDR_Sector;
 uint8_t ADDR_Block;
+uint8_t ADDRESS;
 uint8_t read_block[18]; // 16 data byte + 2 CRC byte
 uint8_t write_block[16];
 uint8_t tag_full[64][16]; //total read_block of one tag in a matrix
-uint8_t INCR = 0x01;
+uint8_t INCR = 0x00;
 uint8_t UART_received[10];
 
 volatile uint8_t MENU;
-uint8_t MENU_P;
 /* USER CODE END 0 */
 
 /**
@@ -120,7 +120,8 @@ int main(void)
   MFRC522_Init(&rfID);
   /* USER CODE END 2 */
   MENU = UID_ONLY;
-  USER_LOG("Press blue button for more action.");
+  USER_LOG("Mode: UID_ONLY");
+  USER_LOG("Press blue button for more actions.");
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -128,23 +129,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-//	  HAL_UART_Receive(&huart2, UART_received, 1, 50);
-//
-//	  if (UART_received[0]=='R'){
-//		  RW = 0x01;
-//	  }
-//
-//	  if (UART_received[0]=='W'){
-//		  RW = 0x00;
-//	  }
-//
-//	  if (UART_received[0]=='F'){
-//		  FULL_READ = 0x01;
-//	  }
-
-
-
 	  if (waitcardDetect(&rfID) == STATUS_OK)
 	  {
 		  if (MFRC522_ReadUid(&rfID, uid) == STATUS_OK)
@@ -169,7 +153,7 @@ int main(void)
 				  for (ADDR_Sector = 0; ADDR_Sector < 16; ADDR_Sector++)
 				  {
 					  if (MFRC522_Authentication(&rfID, uid, ADDR_Sector<<2) == STATUS_OK){
-						  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
+						  USER_LOG("AUTH_SUCCESS for sector: %02d", ADDR_Sector);
 					  }
 
 					  //USER_LOG("Start full reading...");
@@ -187,68 +171,104 @@ int main(void)
 						  }
 					  }
 				  }
+
 				  USER_LOG_N("\r\n");
-				  for (int i = 0; i<64; i++){
+				  USER_LOG_N("___Sector: 00_______");
+				  USER_LOG_N("\r\n");
+
+				  for (int i = 0; i<64; i++)
+				  {
+					  USER_LOG_N("[%02d]: ",i);
+
 					  for (int j = 0; j<16; j++){
 						  USER_LOG_N("%02X ",tag_full[i][j]);
 					  }
+
 					  USER_LOG_N("\r\n");
-					  if ( i%4 == 3){
-						  USER_LOG_N("________");
+
+					  if ((i%4 == 3) && (i != 63))
+					  {
+						  USER_LOG_N("\r\n");
+						  USER_LOG_N("___Sector: %02d_______",(uint8_t)((i/4)+1));
 						  USER_LOG_N("\r\n");
 					  }
 				  }
-			  }
 
-			  if (MENU == READ_BLOCK)
-			  {
-				  ADDR_Sector = 2;
-				  ADDR_Block = 2;
+				  USER_LOG_N("\r\n");
 
-				  if (MFRC522_Authentication(&rfID, uid, (ADDR_Sector<<2) + ADDR_Block) == STATUS_OK){
-					  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
-				  }
-
-				  USER_LOG("Start reading...");
-
-				  if (MFRC522_Read_Block(&rfID, (ADDR_Sector<<2) + ADDR_Block, read_block, sizeof(read_block)) == STATUS_OK)
-				  {
-					  for (int i = 0; i < sizeof(read_block)-2; i++){
-						  USER_LOG_N("%02X ",read_block[i]);
+				  //delete tag matrix
+				  for (int i = 0; i<64; i++){
+					  for (int j = 0; j<16; j++){
+						  tag_full[i][j] = 0xFF;
 					  }
-					  USER_LOG_N("\r\n");
 				  }
 			  }
 
-			  if (MENU == WRITE_BLOCK)
+			  else if (MENU == FULL_ERASE)
 			  {
-				  ADDR_Sector = 2;
-				  ADDR_Block = 2;
+				  USER_LOG("Erasing not implemented yet...");
+			  }
 
-				  if (MFRC522_Authentication(&rfID, uid, (ADDR_Sector<<2) + ADDR_Block) == STATUS_OK){
-					  USER_LOG("AUTH_SUCCESS for sector: %d", ADDR_Sector);
+			  // READ BLOCK-X
+			  else if (MENU % 2 == 1)
+			  {
+				  ADDRESS = (uint8_t)((MENU-1)/2);
+
+				  if (ADDRESS % 4 != 3) // prohibit protected blocks
+				  {
+					  if (MFRC522_Authentication(&rfID, uid, ADDRESS) == STATUS_OK){
+						  USER_LOG("AUTH_SUCCESS for address: %d", ADDRESS);
+					  }
+
+					  USER_LOG("Start reading...");
+
+					  if (MFRC522_Read_Block(&rfID, ADDRESS, read_block, sizeof(read_block)) == STATUS_OK)
+					  {
+						  for (int i = 0; i < sizeof(read_block)-2; i++){
+							  USER_LOG_N("%02X ",read_block[i]);
+						  }
+						  USER_LOG_N("\r\n");
+					  }
 				  }
 
-				  USER_LOG("Start writing...");
+				  else{
+					  USER_LOG("PROTECTED BLOCK!");
+				  }
+			  }
 
-				  for (int n = 0; n < sizeof(write_block); n++)
+			  // WRITE BLOCK-X with increasing numbers
+			  else if (MENU % 2 == 0)
+			  {
+				  ADDRESS = (uint8_t)((MENU-1)/2);
+
+				  if (ADDRESS % 4 != 3) // prohibit protected blocks
 				  {
-					  if (INCR){
+					  if (MFRC522_Authentication(&rfID, uid, ADDRESS) == STATUS_OK){
+						  USER_LOG("AUTH_SUCCESS for address: %d", ADDRESS);
+					  }
+
+					  USER_LOG("Start writing...");
+
+					  for (int n = 0; n < sizeof(write_block); n++){
 						  write_block[n] = INCR++;
 					  }
 
-					  else{
-						  write_block[n] = INCR; //ERASE
+					  if (MFRC522_Write_Block(&rfID, ADDRESS, write_block, sizeof(write_block)) == STATUS_OK)
+					  {
+						  for (int i = 0; i < sizeof(write_block); i++){
+							  USER_LOG_N("%02X ",write_block[i]);
+						  }
+						  USER_LOG_N("\r\n");
 					  }
 				  }
 
-				  if (MFRC522_Write_Block(&rfID, (ADDR_Sector<<2) + ADDR_Block, write_block, sizeof(write_block)) == STATUS_OK)
-				  {
-					  for (int i = 0; i < sizeof(write_block); i++){
-						  USER_LOG_N("%02X ",write_block[i]);
-					  }
-					  USER_LOG_N("\r\n");
+				  else{
+					  USER_LOG("PROTECTED BLOCK!");
 				  }
+			  }
+
+			  else{
+				  USER_LOG_N("UNKNOWN STATE...");
 			  }
 		  }
 
@@ -426,11 +446,33 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	MENU++;
 
-	if (MENU > 4){
+	if (MENU > 128){
 	  MENU = 0;
 	}
 
-	USER_LOG("MENU: %d",MENU);
+	switch (MENU)
+	{
+		case (0):
+			USER_LOG("Mode: UID_ONLY");
+			break;
+
+		case (1):
+			USER_LOG("Mode: FULL_READ");
+			break;
+
+		case (2):
+			USER_LOG("Mode: FULL_ERASE");
+			break;
+
+		default:
+
+			if (MENU%2==1){
+				USER_LOG("Mode: READ_BLOCK_%d",(uint8_t)((MENU-1)/2));
+			}
+			else{
+				USER_LOG("Mode: WRITE_BLOCK_%d",(uint8_t)((MENU-1)/2));
+			}
+	}
 
 }
 /* USER CODE END 4 */

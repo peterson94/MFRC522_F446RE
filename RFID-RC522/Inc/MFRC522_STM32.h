@@ -60,10 +60,8 @@
 
 // MENU status
 #define UID_ONLY		   0
-#define READ_BLOCK		   1
-#define FULL_READ		   2
-#define WRITE_BLOCK		   3
-#define FULL_ERASE		   4
+#define FULL_READ		   1
+#define FULL_ERASE		   2
 
 typedef struct {
     SPI_HandleTypeDef *hspi;
