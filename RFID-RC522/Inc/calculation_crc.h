@@ -3,7 +3,6 @@
 
 #define CRC_A 1
 #define CRC_B 2
-#define BYTE unsigned char
 
 #include "stm32f4xx_hal.h"
 #include <stdint.h>
@@ -14,9 +13,8 @@
 
 #define CRC_A 1
 #define CRC_B 2
-#define BYTE unsigned char
 
 unsigned short UpdateCrc(unsigned char ch, unsigned short *lpwCrc);
-void ComputeCrc(int CRCType, char *Data, int Length, BYTE *TransmitFirst, BYTE *TransmitSecond);
+void ComputeCrc(uint8_t CRCType, uint8_t *Data, uint8_t Length, uint8_t *TransmitFirst, uint8_t *TransmitSecond);
 
 #endif

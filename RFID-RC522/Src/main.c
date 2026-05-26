@@ -122,6 +122,12 @@ int main(void)
   MENU = UID_ONLY;
   USER_LOG("Mode: UID_ONLY");
   USER_LOG("Press blue button for more actions.");
+  //initialize tag matrix
+  for (int i = 0; i<64; i++){
+	  for (int j = 0; j<16; j++){
+		  tag_full[i][j] = 0xFF;
+	  }
+  }
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -206,7 +212,37 @@ int main(void)
 
 			  else if (MENU == FULL_ERASE)
 			  {
-				  USER_LOG("Erasing not implemented yet...");
+				  USER_LOG("Erasing start...");
+
+				  for (int n = 0; n < sizeof(write_block); n++){
+					  write_block[n] = 0x00;
+				  }
+
+				  for (ADDR_Sector = 0; ADDR_Sector < 16; ADDR_Sector++)
+				  {
+					  if (MFRC522_Authentication(&rfID, uid, ADDR_Sector<<2) == STATUS_OK){
+						  USER_LOG("AUTH_SUCCESS for sector: %02d", ADDR_Sector);
+					  }
+
+					  if (ADDR_Sector == 0)
+					  {
+						  MFRC522_Write_Block(&rfID, 0x01, write_block, sizeof(write_block));
+						  MFRC522_Write_Block(&rfID, 0x02, write_block, sizeof(write_block));
+					  }
+
+					  else
+					  {
+						  for (ADDR_Block = 0; ADDR_Block < 3; ADDR_Block++) // keep protected blocks out
+						  {
+							  if (((ADDR_Sector<<2) + ADDR_Block) % 4 != 3) // make sure that protected blocks are in safety
+							  {
+								  MFRC522_Write_Block(&rfID, ((ADDR_Sector<<2) + ADDR_Block), write_block, sizeof(write_block));
+							  }
+						  }
+					  }
+				  }
+
+				  USER_LOG("Erasing done...");
 			  }
 
 			  // READ BLOCK-X

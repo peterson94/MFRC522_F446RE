@@ -345,7 +345,7 @@ uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data,
     	}
     }
 
-    USER_LOG("Authentication timeout");
+    USER_LOG("Reading timeout...");
     MFRC522_AntennaOff(dev);
     HAL_Delay(5);
     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
@@ -405,7 +405,8 @@ uint8_t MFRC522_Write_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data
             return STATUS_OK;
         }
     }
-    DEBUG_LOG("Writing timeout");
+
+    USER_LOG("Writing timeout...");
     MFRC522_AntennaOff(dev);
     HAL_Delay(5);
     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
