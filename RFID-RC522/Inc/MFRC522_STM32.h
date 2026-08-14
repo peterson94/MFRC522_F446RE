@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #define ENABLE_USER_LOG   1
-#define ENABLE_DEBUG_LOG  0 // Test with this disabled
+#define ENABLE_DEBUG_LOG  1 // Test with this disabled
 
 #if ENABLE_USER_LOG
   #define USER_LOG(fmt, ...) printf("[USER] " fmt "\r\n", ##__VA_ARGS__)
@@ -29,6 +29,7 @@
 #define PCD_FIFODataReg    0x09
 #define PCD_FIFOLevelReg   0x0A
 #define PCD_BitFramingReg  0x0D
+#define PCD_CollisionReg   0x0E
 #define PCD_TxControlReg   0x14
 #define PCD_TxAutoReg      0x15
 #define PCD_RFCfgReg       0x26
