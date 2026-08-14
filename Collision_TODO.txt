@@ -1,0 +1,41 @@
+ErrorReg kiolvasása 0x06h
+Collision error -> bit 3
+if (ErrorReg & 0x08)
+## nálam 0x1D de az is oké
+
+Ha collision történik, az ISO14443A szerint innentől bitenként kell folytatni az anticollisiont:
+
+kiolvasni a CollisionReg-et,
+	0x0E regiszter
+	bit5-CollPosNotValid bit - ez 0 kell hogy legyen
+	bit0-4: position
+		00: 32nd
+		01: 1st
+		02: 2nd
+		...
+	feltétel legyen: 
+	if (CollisionReg & 0x20) == 0 - igazolja a valid collision-t
+	
+	CollPos = CollisionReg & 0x1F - maszkolással marad a pozíció
+	de ha ekkor CollPos == 0 akkor
+		CollPos = 32;
+## kiolvastam, 0x85
+	
+meghatározni az első ütköző bitet,
+	- ez is megvan fentebb
+
+beállítani a BitFramingReg-et,
+	0x0D regiszter
+	törtbyte számítása a CollPos alapján -> oszthatóság
+	pl. CollPos=10 akkor átment 1 byte és 2 bit törve maradt és abból az utolsó a collisioned bit.
+	RxAlign = CollPos % 8 - ez 2 lesz
+	
+	BitFramingReg = 0x80 | (RxAlign << 4)
+
+újraküldeni a részleges UID-t, -> először 1-est pakol az ütközött bit helyére.
+
+	Parancs ez lesz a példa után: 0x93 (0x20 | RxAlign)
+
+majd ismét várni.
+
+Ha nincs több collision, elküldeni a teljes UID-t amire ez a SAK válasz jön: (x x 1 x x 0 x x)b
