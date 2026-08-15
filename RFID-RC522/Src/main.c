@@ -80,6 +80,7 @@ uint8_t write_block[16];
 uint8_t tag_full[64][16]; //total read_block of one tag in a matrix
 uint8_t INCR = 0x00;
 uint8_t UART_received[10];
+uint8_t STAT_GLOBAL;
 
 volatile uint8_t MENU;
 /* USER CODE END 0 */
@@ -137,14 +138,36 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  if (waitcardDetect(&rfID) == STATUS_OK)
 	  {
-		  if (MFRC522_ReadUid(&rfID, uid) == STATUS_OK)
+		  STAT_GLOBAL = STATUS_COLL;
+		  while(STAT_GLOBAL == STATUS_COLL)
 		  {
-			  USER_LOG("CARD ID:%02X %02X %02X %02X", uid[0], uid[1], uid[2], uid[3]);
-			  if ((uid[0] == 0x83) && (uid[1] == 0xFB) &&(uid[2] == 0x1B) &&(uid[3] == 0x34)){
-				  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+			  STAT_GLOBAL = MFRC522_ReadUid(&rfID, uid);
+
+			  if (STAT_GLOBAL == STATUS_COLL)
+			  {
+				  MENU = UID_ONLY;
+				  USER_LOG("CARD ID:%02X %02X %02X %02X", uid[0], uid[1], uid[2], uid[3]);
+				  if ((uid[0] == 0x83) && (uid[1] == 0xFB) &&(uid[2] == 0x1B) &&(uid[3] == 0x34)){
+					  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+				  }
+				  else if ((uid[0] == 0x93) && (uid[1] == 0x24) &&(uid[2] == 0x41) &&(uid[3] == 0xCD)){
+					  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+				  }
+
+				  if(MFRC522_Select(&rfID, uid) == STATUS_OK) {
+					  MFRC522_Halt(&rfID);
+				  }
 			  }
-			  else if ((uid[0] == 0x93) && (uid[1] == 0x24) &&(uid[2] == 0x41) &&(uid[3] == 0xCD)){
-				  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+
+			  else if (STAT_GLOBAL == STATUS_OK)
+			  {
+				  USER_LOG("CARD ID:%02X %02X %02X %02X", uid[0], uid[1], uid[2], uid[3]);
+				  if ((uid[0] == 0x83) && (uid[1] == 0xFB) &&(uid[2] == 0x1B) &&(uid[3] == 0x34)){
+					  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+				  }
+				  else if ((uid[0] == 0x93) && (uid[1] == 0x24) &&(uid[2] == 0x41) &&(uid[3] == 0xCD)){
+					  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+				  }
 			  }
 		  }
 

@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #define ENABLE_USER_LOG   1
-#define ENABLE_DEBUG_LOG  1 // Test with this disabled
+#define ENABLE_DEBUG_LOG  0 // Test with this disabled
 
 #if ENABLE_USER_LOG
   #define USER_LOG(fmt, ...) printf("[USER] " fmt "\r\n", ##__VA_ARGS__)
@@ -53,11 +53,13 @@
 #define PICC_AUTH_B		   0x61
 #define PICC_READ		   0x30
 #define PICC_WRITE		   0xA0
+#define PICC_HALT		   0x50
 
 // Status
 #define STATUS_OK          0
 #define STATUS_ERROR       1
 #define STATUS_TIMEOUT     2
+#define STATUS_COLL		   3
 
 // MENU status
 #define UID_ONLY		   0
@@ -90,6 +92,7 @@ uint8_t MFRC522_RequestA(MFRC522_t *dev, uint8_t *atqa);
 uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid);
 uint8_t MFRC522_ReadUid(MFRC522_t *dev, uint8_t *uid);
 uint8_t MFRC522_Select(MFRC522_t *dev, uint8_t *uid);
+uint8_t MFRC522_Halt(MFRC522_t *dev);
 uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t address);
 uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data, size_t block_length);
 uint8_t MFRC522_Write_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data, size_t block_length);
