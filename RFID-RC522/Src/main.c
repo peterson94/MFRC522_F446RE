@@ -81,6 +81,7 @@ uint8_t tag_full[64][16]; //total read_block of one tag in a matrix
 uint8_t INCR = 0x00;
 uint8_t UART_received[10];
 uint8_t STAT_GLOBAL;
+uint8_t atqa_global[2];
 
 volatile uint8_t MENU;
 /* USER CODE END 0 */
@@ -156,6 +157,7 @@ int main(void)
 
 				  if(MFRC522_Select(&rfID, uid) == STATUS_OK) {
 					  MFRC522_Halt(&rfID);
+					  MFRC522_RequestA(&rfID, atqa_global);
 				  }
 			  }
 
@@ -169,6 +171,7 @@ int main(void)
 					  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
 				  }
 			  }
+			 // MFRC522_WriteReg(&rfID, PCD_Status2Reg, 0x00);
 		  }
 
 		  if (MENU != UID_ONLY)

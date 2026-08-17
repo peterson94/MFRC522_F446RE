@@ -104,10 +104,10 @@ void MFRC522_ClearBitMask(MFRC522_t *dev, uint8_t reg, uint8_t mask) {
 
 uint8_t MFRC522_RequestA(MFRC522_t *dev, uint8_t *atqa) {
     DEBUG_LOG("RequestA");
-    MFRC522_AntennaOff(dev);  // Reset RF
-    HAL_Delay(5);  // Allow chip to stabilize
-    MFRC522_AntennaOn(dev);
-    HAL_Delay(5);  // Ensure RF is ready
+    //MFRC522_AntennaOff(dev);  // Reset RF
+    //HAL_Delay(5);  // Allow chip to stabilize
+    //MFRC522_AntennaOn(dev);
+    //HAL_Delay(5);  // Ensure RF is ready
     MFRC522_WriteReg(dev, PCD_ComIrqReg, 0x7F);      // Clear IRQs
     MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
     MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x07);  // 7 bits for REQA
@@ -124,7 +124,7 @@ uint8_t MFRC522_RequestA(MFRC522_t *dev, uint8_t *atqa) {
             uint8_t err = MFRC522_ReadReg(dev, PCD_ErrorReg);
             if (err & 0x1D) {  // Protocol/parity/buffer errors
                 DEBUG_LOG("RequestA error: 0x%02X", err);
-                MFRC522_AntennaOff(dev);
+               // MFRC522_AntennaOff(dev);
                 HAL_Delay(5);
                 MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle); // Stop command
                 return STATUS_ERROR;
@@ -139,7 +139,7 @@ uint8_t MFRC522_RequestA(MFRC522_t *dev, uint8_t *atqa) {
                 return STATUS_OK;
             }
             DEBUG_LOG("RequestA bad FIFO level: %d", fifoLvl);
-            MFRC522_AntennaOff(dev);
+            //MFRC522_AntennaOff(dev);
             HAL_Delay(5);
             MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
             return STATUS_ERROR;
@@ -147,8 +147,8 @@ uint8_t MFRC522_RequestA(MFRC522_t *dev, uint8_t *atqa) {
         HAL_Delay(1);  // Mimic debug log timing
     }
     DEBUG_LOG("RequestA timeout");
-    MFRC522_AntennaOff(dev);
-    HAL_Delay(5);
+    //MFRC522_AntennaOff(dev);
+    //HAL_Delay(5);
     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
     return STATUS_TIMEOUT;
 }
@@ -212,10 +212,10 @@ uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID 
 
 					    MFRC522_WriteReg(dev, PCD_ComIrqReg, 0x7F);      // Clear IRQs
 					    MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
-						MFRC522_WriteReg(dev, PCD_BitFramingReg, (0x00 | rxAlign << 4) | txLast ); // fractioned-frame
+						MFRC522_WriteReg(dev, PCD_BitFramingReg, (0x00 | (rxAlign << 4)) | txLast ); // fractioned-frame
 
 						MFRC522_WriteReg(dev, PCD_FIFODataReg, PICC_SEL_CL1);  // 0x93
-						MFRC522_WriteReg(dev, PCD_FIFODataReg, (0x20 + (txPrev << 4)) | txLast );
+						MFRC522_WriteReg(dev, PCD_FIFODataReg, ((2 + txPrev) << 4) | txLast );
 						for (int i = 0; i < txPrev; i++) {
 							MFRC522_WriteReg(dev, PCD_FIFODataReg, temp_uid[i]);
 						}
@@ -246,7 +246,7 @@ uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID 
                 		DEBUG_LOG("More than two cards detected.");
                 	}
 
-                	MFRC522_AntennaOff(dev);
+                	//MFRC522_AntennaOff(dev);
                 	HAL_Delay(5);
                 	MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
                 	return STATUS_ERROR;
@@ -263,7 +263,7 @@ uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID 
                 }
 
                 if (txLast){
-                	uid[txPrev] |= (temp_uid[txPrev] & ~(0xFF<<(txLast)));
+                	uid[txPrev] |= (temp_uid[txPrev] & ~(0xFF << txLast) );
                 }
 
                 // Validate BCC
@@ -271,7 +271,7 @@ uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID 
                 if (uid[4] != calcBcc)
                 {
                     DEBUG_LOG("Anticoll bad BCC: calc=0x%02X, got=0x%02X", calcBcc, uid[4]);
-                    MFRC522_AntennaOff(dev);
+                    //MFRC522_AntennaOff(dev);
                     HAL_Delay(5);
                     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
                     return STATUS_ERROR;
@@ -288,7 +288,7 @@ uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID 
             }
 
             DEBUG_LOG("Anticoll bad FIFO level: %d", fifoLvl);
-            MFRC522_AntennaOff(dev);
+            //MFRC522_AntennaOff(dev);
             HAL_Delay(5);
             MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
             return STATUS_ERROR;
@@ -298,7 +298,7 @@ uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID 
     } // end of while
 
     DEBUG_LOG("Anticoll timeout");
-    MFRC522_AntennaOff(dev);
+    //MFRC522_AntennaOff(dev);
     HAL_Delay(5);
     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
     return STATUS_TIMEOUT;
@@ -575,6 +575,10 @@ uint8_t waitcardRemoval (MFRC522_t *dev){
 
     USER_LOG("Waiting for card removal...");
     while (1){
+        MFRC522_AntennaOff(dev);  // Reset RF
+        HAL_Delay(5);  // Allow chip to stabilize
+        MFRC522_AntennaOn(dev);
+        HAL_Delay(5);  // Ensure RF is ready
         if (MFRC522_RequestA(dev, atqa) != STATUS_OK){
         	USER_LOG("Card removed");
             return STATUS_OK; // Card removed, return success
@@ -588,6 +592,10 @@ uint8_t waitcardDetect (MFRC522_t *dev) {
 	atqa[0] = atqa[1] = 0;
 	USER_LOG("Waiting for the card...");
 	while (1){
+	    MFRC522_AntennaOff(dev);  // Reset RF
+	    HAL_Delay(5);  // Allow chip to stabilize
+	    MFRC522_AntennaOn(dev);
+	    HAL_Delay(5);  // Ensure RF is ready
 	    if (MFRC522_RequestA(dev, atqa) == STATUS_OK){
 	    	USER_LOG("Card detected");
 	        return STATUS_OK;
