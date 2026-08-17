@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #define ENABLE_USER_LOG   1
-#define ENABLE_DEBUG_LOG  1 // Test with this disabled
+#define ENABLE_DEBUG_LOG  0 // Test with this disabled
 
 #if ENABLE_USER_LOG
   #define USER_LOG(fmt, ...) printf("[USER] " fmt "\r\n", ##__VA_ARGS__)
@@ -48,6 +48,7 @@
 
 // PICC commands
 #define PICC_REQA          0x26
+#define PICC_WUPA		   0x52
 #define PICC_SEL_CL1       0x93
 #define PICC_AUTH_A		   0x60
 #define PICC_AUTH_B		   0x61
@@ -88,6 +89,7 @@ uint8_t MFRC522_ReadReg(MFRC522_t *dev, uint8_t reg);
 void MFRC522_WriteReg(MFRC522_t *dev, uint8_t reg, uint8_t value);
 void MFRC522_SetBitMask(MFRC522_t *dev, uint8_t reg, uint8_t mask);
 void MFRC522_ClearBitMask(MFRC522_t *dev, uint8_t reg, uint8_t mask);
+uint8_t MFRC522_WakeupA(MFRC522_t *dev, uint8_t *atqa);
 uint8_t MFRC522_RequestA(MFRC522_t *dev, uint8_t *atqa);
 uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid);
 uint8_t MFRC522_ReadUid(MFRC522_t *dev, uint8_t *uid);

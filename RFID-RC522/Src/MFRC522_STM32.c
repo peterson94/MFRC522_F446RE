@@ -102,6 +102,57 @@ void MFRC522_ClearBitMask(MFRC522_t *dev, uint8_t reg, uint8_t mask) {
     DEBUG_LOG("ClearBitMask: 0x%02X &= ~0x%02X", reg, mask);
 }
 
+uint8_t MFRC522_WakeupA(MFRC522_t *dev, uint8_t *atqa) {
+    DEBUG_LOG("Wakeup_A");
+    //MFRC522_AntennaOff(dev);  // Reset RF
+    //HAL_Delay(5);  // Allow chip to stabilize
+    //MFRC522_AntennaOn(dev);
+    //HAL_Delay(5);  // Ensure RF is ready
+    MFRC522_WriteReg(dev, PCD_ComIrqReg, 0x7F);      // Clear IRQs
+    MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
+    MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x07);  // 7 bits for REQA
+    MFRC522_WriteReg(dev, PCD_FIFODataReg, PICC_WUPA);
+    HAL_Delay(2);  // Increased for counterfeit chip stability
+    MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Transceive);
+    MFRC522_SetBitMask(dev, PCD_BitFramingReg, 0x80);
+
+    // Poll for completion (25ms timeout)
+    uint32_t timeout = HAL_GetTick() + 25;
+    while (HAL_GetTick() < timeout) {
+        uint8_t status2 = MFRC522_ReadReg(dev, PCD_Status2Reg);
+        if (status2 & 0x01) {  // Command complete
+            uint8_t err = MFRC522_ReadReg(dev, PCD_ErrorReg);
+            if (err & 0x1D) {  // Protocol/parity/buffer errors
+                DEBUG_LOG("WUPA error: 0x%02X", err);
+               // MFRC522_AntennaOff(dev);
+                HAL_Delay(5);
+                MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle); // Stop command
+                return STATUS_ERROR;
+            }
+            uint8_t fifoLvl = MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
+            if (fifoLvl >= 2) {  // ATQA is 2 bytes
+                atqa[0] = MFRC522_ReadReg(dev, PCD_FIFODataReg);
+                atqa[1] = MFRC522_ReadReg(dev, PCD_FIFODataReg);
+                DEBUG_LOG("WUPA ATQA: 0x%02X 0x%02X", atqa[0], atqa[1]);
+                MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle); // Stop command
+                HAL_Delay(2);  // Post-command delay
+                return STATUS_OK;
+            }
+            DEBUG_LOG("WUPA bad FIFO level: %d", fifoLvl);
+            //MFRC522_AntennaOff(dev);
+            HAL_Delay(5);
+            MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
+            return STATUS_ERROR;
+        }
+        HAL_Delay(1);  // Mimic debug log timing
+    }
+    DEBUG_LOG("WUPA timeout");
+    //MFRC522_AntennaOff(dev);
+    //HAL_Delay(5);
+    MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
+    return STATUS_TIMEOUT;
+}
+
 uint8_t MFRC522_RequestA(MFRC522_t *dev, uint8_t *atqa) {
     DEBUG_LOG("RequestA");
     //MFRC522_AntennaOff(dev);  // Reset RF
@@ -568,23 +619,32 @@ uint8_t MFRC522_ReadUid(MFRC522_t *dev, uint8_t *uid) {  // Output: uid[4]
 }
 
 uint8_t waitcardRemoval (MFRC522_t *dev){
-    MFRC522_WriteReg(dev, PCD_Status2Reg, 0x00);
-    MFRC522_AntennaOff(dev);
-    HAL_Delay(5);
-    MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
-
+    //MFRC522_WriteReg(dev, PCD_Status2Reg, 0x00);
+    //MFRC522_AntennaOff(dev);
+    //HAL_Delay(5);
+    //MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
+	uint8_t status;
     USER_LOG("Waiting for card removal...");
     while (1){
-        MFRC522_AntennaOff(dev);  // Reset RF
-        HAL_Delay(5);  // Allow chip to stabilize
-        MFRC522_AntennaOn(dev);
-        HAL_Delay(5);  // Ensure RF is ready
-        if (MFRC522_RequestA(dev, atqa) != STATUS_OK){
+        //MFRC522_AntennaOff(dev);  // Reset RF
+        //HAL_Delay(5);  // Allow chip to stabilize
+        //MFRC522_AntennaOn(dev);
+        //HAL_Delay(5);  // Ensure RF is ready
+
+    	// IDLE STATE
+    	status = MFRC522_RequestA(dev, atqa);
+    	HAL_Delay(10);
+
+    	// READY STATE
+    	status = MFRC522_RequestA(dev, atqa);
+
+    	// CHECK IF WE STILL HAVE TAG
+        if (status != STATUS_OK){
         	USER_LOG("Card removed");
             return STATUS_OK; // Card removed, return success
         }
 
-        HAL_Delay(100); // Poll every 100ms to check if card is still present
+        HAL_Delay(250); // Poll every 100ms to check if card is still present
     }
 }
 
@@ -592,16 +652,16 @@ uint8_t waitcardDetect (MFRC522_t *dev) {
 	atqa[0] = atqa[1] = 0;
 	USER_LOG("Waiting for the card...");
 	while (1){
-	    MFRC522_AntennaOff(dev);  // Reset RF
-	    HAL_Delay(5);  // Allow chip to stabilize
-	    MFRC522_AntennaOn(dev);
-	    HAL_Delay(5);  // Ensure RF is ready
-	    if (MFRC522_RequestA(dev, atqa) == STATUS_OK){
+	    //MFRC522_AntennaOff(dev);  // Reset RF
+	    //HAL_Delay(5);  // Allow chip to stabilize
+	    //MFRC522_AntennaOn(dev);
+	    //HAL_Delay(5);  // Ensure RF is ready
+	    if (MFRC522_WakeupA(dev, atqa) == STATUS_OK){
 	    	USER_LOG("Card detected");
 	        return STATUS_OK;
 	    }
 
-	    HAL_Delay(100);	// Poll every 100ms to check if card is  present
+	    HAL_Delay(50);	// Poll every 100ms to check if card is  present
 	}
 }
 
