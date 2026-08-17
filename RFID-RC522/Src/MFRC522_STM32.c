@@ -619,6 +619,28 @@ uint8_t MFRC522_ReadUid(MFRC522_t *dev, uint8_t *uid) {  // Output: uid[4]
 }
 
 uint8_t waitcardRemoval (MFRC522_t *dev){
+    MFRC522_WriteReg(dev, PCD_Status2Reg, 0x00);
+    MFRC522_AntennaOff(dev);
+    HAL_Delay(5);
+    MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
+
+    USER_LOG("Waiting for card removal...");
+    while (1){
+        MFRC522_AntennaOff(dev);  // Reset RF
+        HAL_Delay(5);  // Allow chip to stabilize
+        MFRC522_AntennaOn(dev);
+        HAL_Delay(5);  // Ensure RF is ready
+
+        if (MFRC522_RequestA(dev, atqa) != STATUS_OK){
+        	USER_LOG("Card removed");
+            return STATUS_OK; // Card removed, return success
+        }
+
+        HAL_Delay(250); // Poll every 100ms to check if card is still present
+    }
+}
+
+uint8_t waitcardRemoval_custom (MFRC522_t *dev){
     //MFRC522_WriteReg(dev, PCD_Status2Reg, 0x00);
     //MFRC522_AntennaOff(dev);
     //HAL_Delay(5);
@@ -647,7 +669,6 @@ uint8_t waitcardRemoval (MFRC522_t *dev){
         HAL_Delay(250); // Poll every 100ms to check if card is still present
     }
 }
-
 uint8_t waitcardDetect (MFRC522_t *dev) {
 	atqa[0] = atqa[1] = 0;
 	USER_LOG("Waiting for the card...");

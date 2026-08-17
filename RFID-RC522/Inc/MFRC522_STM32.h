@@ -99,6 +99,7 @@ uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t address);
 uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data, size_t block_length);
 uint8_t MFRC522_Write_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data, size_t block_length);
 uint8_t waitcardRemoval (MFRC522_t *dev);
+uint8_t waitcardRemoval_custom (MFRC522_t *dev);
 uint8_t waitcardDetect (MFRC522_t *dev);
 
 #endif
