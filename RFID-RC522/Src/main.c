@@ -131,8 +131,6 @@ int main(void)
 	  }
   }
 
-  STAT_GLOBAL = 0x01;
-
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -140,7 +138,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
+	  STAT_GLOBAL = 0x01;
 	  USER_LOG("Waiting for the card...");
 
 	  while (MFRC522_WakeupA(&rfID, atqa_global) != STATUS_OK){
@@ -202,9 +200,7 @@ int main(void)
 				  if (MFRC522_Authentication(&rfID, uid, ADDR_Sector<<2) == STATUS_OK){
 					  USER_LOG("AUTH_SUCCESS for sector: %02d", ADDR_Sector);
 				  }
-
 				  //USER_LOG("Start full reading...");
-
 				  for (ADDR_Block = 0; ADDR_Block < 4; ADDR_Block++)
 				  {
 					  if (MFRC522_Read_Block(&rfID, ((ADDR_Sector<<2) + ADDR_Block), read_block, sizeof(read_block)) == STATUS_OK)
@@ -275,8 +271,7 @@ int main(void)
 				  {
 					  for (ADDR_Block = 0; ADDR_Block < 3; ADDR_Block++) // keep protected blocks out
 					  {
-						  if (((ADDR_Sector<<2) + ADDR_Block) % 4 != 3) // make sure that protected blocks are in safety
-						  {
+						  if (((ADDR_Sector<<2) + ADDR_Block) % 4 != 3){ // make sure that protected blocks are in safety
 							  MFRC522_Write_Block(&rfID, ((ADDR_Sector<<2) + ADDR_Block), write_block, sizeof(write_block));
 						  }
 					  }
