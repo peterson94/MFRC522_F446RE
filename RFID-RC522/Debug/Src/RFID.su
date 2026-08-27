@@ -1,0 +1,7 @@
+../Src/RFID.c:6:9:RFID_Detect	24	static
+../Src/RFID.c:16:9:RFID_Remove	16	static
+../Src/RFID.c:33:9:RFID_UID_Read	40	static
+../Src/RFID.c:81:9:RFID_FullRead	1088	static
+../Src/RFID.c:153:9:RFID_FullErase	40	static
+../Src/RFID.c:196:9:RFID_ReadBlock	48	static
+../Src/RFID.c:239:9:RFID_WriteBlock	56	static

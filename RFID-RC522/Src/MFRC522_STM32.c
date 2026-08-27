@@ -102,7 +102,8 @@ void MFRC522_ClearBitMask(MFRC522_t *dev, uint8_t reg, uint8_t mask) {
     DEBUG_LOG("ClearBitMask: 0x%02X &= ~0x%02X", reg, mask);
 }
 
-uint8_t MFRC522_WakeupA(MFRC522_t *dev, uint8_t *atqa) {
+uint8_t MFRC522_WakeupA(MFRC522_t *dev) {
+	uint8_t atqa[2];
     DEBUG_LOG("Wakeup_A");
     //MFRC522_AntennaOff(dev);  // Reset RF
     //HAL_Delay(5);  // Allow chip to stabilize
@@ -153,7 +154,8 @@ uint8_t MFRC522_WakeupA(MFRC522_t *dev, uint8_t *atqa) {
     return STATUS_TIMEOUT;
 }
 
-uint8_t MFRC522_RequestA(MFRC522_t *dev, uint8_t *atqa) {
+uint8_t MFRC522_RequestA(MFRC522_t *dev) {
+	uint8_t atqa[2];
     DEBUG_LOG("RequestA");
     //MFRC522_AntennaOff(dev);  // Reset RF
     //HAL_Delay(5);  // Allow chip to stabilize
@@ -634,7 +636,7 @@ uint8_t waitcardRemoval (MFRC522_t *dev){
         MFRC522_AntennaOn(dev);
         HAL_Delay(5);  // Ensure RF is ready
 
-        if (MFRC522_RequestA(dev, atqa) != STATUS_OK){
+        if (MFRC522_RequestA(dev) != STATUS_OK){
         	USER_LOG("Card removed");
             return STATUS_OK; // Card removed, return success
         }
@@ -657,11 +659,11 @@ uint8_t waitcardRemoval_custom (MFRC522_t *dev){
         //HAL_Delay(5);  // Ensure RF is ready
 
     	// IDLE STATE
-    	status = MFRC522_RequestA(dev, atqa);
+    	status = MFRC522_RequestA(dev);
     	HAL_Delay(10);
 
     	// READY STATE
-    	status = MFRC522_RequestA(dev, atqa);
+    	status = MFRC522_RequestA(dev);
 
     	// CHECK IF WE STILL HAVE TAG
         if (status != STATUS_OK){
@@ -673,14 +675,13 @@ uint8_t waitcardRemoval_custom (MFRC522_t *dev){
     }
 }
 uint8_t waitcardDetect (MFRC522_t *dev) {
-	atqa[0] = atqa[1] = 0;
 	USER_LOG("Waiting for the card...");
 	while (1){
 	    //MFRC522_AntennaOff(dev);  // Reset RF
 	    //HAL_Delay(5);  // Allow chip to stabilize
 	    //MFRC522_AntennaOn(dev);
 	    //HAL_Delay(5);  // Ensure RF is ready
-	    if (MFRC522_WakeupA(dev, atqa) == STATUS_OK){
+	    if (MFRC522_WakeupA(dev) == STATUS_OK){
 	    	USER_LOG("Card detected");
 	        return STATUS_OK;
 	    }
