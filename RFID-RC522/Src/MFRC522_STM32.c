@@ -360,7 +360,7 @@ uint8_t MFRC522_Select(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID + 
     MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
     MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x00);  // Full frame
 
-	FIFO_64B TEMP = {{},0,0};
+	FIFO_64B TEMP = {{},0,64};
 	FIFO_ADD(&TEMP,PICC_SEL_CL1);
 	FIFO_ADD(&TEMP,0x70);
 	FIFO_ADD(&TEMP,uid[0]);
@@ -399,7 +399,7 @@ uint8_t MFRC522_Halt(MFRC522_t *dev) {
     MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
     MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x00);  // Full frame
 
-	FIFO_64B TEMP = {{},0,0};
+	FIFO_64B TEMP = {{},0,64};
 	FIFO_ADD(&TEMP,PICC_HALT);
 	FIFO_ADD(&TEMP,0x00);
 
@@ -427,7 +427,7 @@ uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t address) { 
 	MFRC522_WriteReg(dev, PCD_FIFOLevelReg, 0x80);   // Flush FIFO
 	MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x00);  // Full frame
 
-	FIFO_64B TEMP = {{},0,0};
+	FIFO_64B TEMP = {{},0,64};
 	FIFO_ADD(&TEMP, PICC_AUTH_A);
 	FIFO_ADD(&TEMP, address);
 	FIFO_ADD(&TEMP, 0xFF);
@@ -495,7 +495,7 @@ uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data,
 	MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x00);  // Full frame
 	MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle); // Idle state
 
-	FIFO_64B TEMP = {{},0,0};
+	FIFO_64B TEMP = {{},0,64};
 	FIFO_ADD(&TEMP, PICC_READ);
 	FIFO_ADD(&TEMP, address);
 
@@ -540,7 +540,7 @@ uint8_t MFRC522_Write_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data
 	MFRC522_WriteReg(dev, PCD_BitFramingReg, 0x00);  // Full frame
 	MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle); // Idle state
 
-	FIFO_64B TEMP = {{},0,0};
+	FIFO_64B TEMP = {{},0,64};
 	FIFO_ADD(&TEMP, PICC_WRITE);
 	FIFO_ADD(&TEMP, address);
 
