@@ -1,7 +1,7 @@
 ## 1) Pinout Description of Setup:  
 <img src="https://github.com/peterson94/RFID-RC522/blob/master/Setup_pinout_description.png">
 
-## 2) Layered SW architecture
+## 2) Layered SW architecture:
 <img src="https://github.com/peterson94/RFID-RC522/blob/master/MFRC_SW_Layers.png">
 
 ## 3) Used References:  
