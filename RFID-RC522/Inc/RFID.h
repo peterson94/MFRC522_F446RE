@@ -9,7 +9,7 @@
 // Prototypes
 uint8_t RFID_Detect(MFRC522_t *rfID);
 uint8_t RFID_Remove(MFRC522_t *rfID);
-uint8_t RFID_UID_Read(MFRC522_t *rfID, uint8_t *uid);
+uint8_t RFID_UID_Read(MFRC522_t *rfID, uint8_t *uid, uint8_t *MENU);
 uint8_t RFID_FullRead(MFRC522_t *rfID, uint8_t *uid);
 uint8_t RFID_FullErase(MFRC522_t *rfID, uint8_t *uid);
 uint8_t RFID_ReadBlock(MFRC522_t *rfID, uint8_t *uid, uint8_t MENU_LOCAL);

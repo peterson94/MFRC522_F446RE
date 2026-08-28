@@ -60,7 +60,9 @@
 #define STATUS_OK          0
 #define STATUS_ERROR       1
 #define STATUS_TIMEOUT     2
-#define STATUS_COLL		   3
+#define STATUS_COLL_1	   3
+#define STATUS_COLL_2	   4
+#define STATUS_HALT		   5
 
 // MENU status
 #define UID_ONLY		   0
@@ -92,14 +94,10 @@ void MFRC522_ClearBitMask(MFRC522_t *dev, uint8_t reg, uint8_t mask);
 uint8_t MFRC522_WakeupA(MFRC522_t *dev);
 uint8_t MFRC522_RequestA(MFRC522_t *dev);
 uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid);
-uint8_t MFRC522_ReadUid(MFRC522_t *dev, uint8_t *uid);
 uint8_t MFRC522_Select(MFRC522_t *dev, uint8_t *uid);
 uint8_t MFRC522_Halt(MFRC522_t *dev);
 uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t address);
 uint8_t MFRC522_Read_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data, size_t block_length);
 uint8_t MFRC522_Write_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data, size_t block_length);
-uint8_t waitcardRemoval (MFRC522_t *dev);
-uint8_t waitcardRemoval_custom (MFRC522_t *dev);
-uint8_t waitcardDetect (MFRC522_t *dev);
 
 #endif

@@ -130,36 +130,36 @@ int main(void)
 
 	  USER_LOG("Card detected");
 
-	  RFID_UID_Read(&rfID, uid);
-
-	  if (MENU != UID_ONLY)
+	  if (RFID_UID_Read(&rfID, uid, &MENU) == STATUS_OK)
 	  {
-
-		  if (MENU == FULL_READ)
+		  if (MENU != UID_ONLY)
 		  {
-			 RFID_FullRead(&rfID, uid);
-		  }
+			  if (MENU == FULL_READ)
+			  {
+				 RFID_FullRead(&rfID, uid);
+			  }
 
-		  else if (MENU == FULL_ERASE)
-		  {
-			  RFID_FullErase(&rfID, uid);
-		  }
+			  else if (MENU == FULL_ERASE)
+			  {
+				  RFID_FullErase(&rfID, uid);
+			  }
 
-		  // READ BLOCK-X
-		  else if (MENU % 2 == 1)
-		  {
-			  RFID_ReadBlock(&rfID, uid, MENU);
-		  }
+			  // READ BLOCK-X
+			  else if (MENU % 2 == 1)
+			  {
+				  RFID_ReadBlock(&rfID, uid, MENU);
+			  }
 
-		  // WRITE BLOCK-X with increasing numbers
-		  else if (MENU % 2 == 0)
-		  {
-			  RFID_WriteBlock(&rfID, uid, MENU);
-		  }
+			  // WRITE BLOCK-X with increasing numbers
+			  else if (MENU % 2 == 0)
+			  {
+				  RFID_WriteBlock(&rfID, uid, MENU);
+			  }
 
-		  else
-		  {
-			  USER_LOG_N("UNKNOWN STATE...");
+			  else
+			  {
+				  USER_LOG("UNKNOWN STATE...");
+			  }
 		  }
 	  }
 
@@ -171,9 +171,6 @@ int main(void)
 	  }
 
 	  USER_LOG("Card removed");
-
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
   }
   /* USER CODE END 3 */
 }

@@ -2,8 +2,6 @@
 #include "main.h"
 #include "calculation_crc.h"
 
-uint8_t atqa[2];
-
 void FIFO_ADD(FIFO_64B * FIFO, uint8_t C) {
     uint8_t index = FIFO->head;
 
@@ -296,7 +294,7 @@ uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID 
                 	DEBUG_LOG("Error during anticoll: 0x%02X", err);
 
                 	if (err & 0x08) {
-                		DEBUG_LOG("More than two cards detected.");
+                		return STATUS_COLL_2;
                 	}
 
                 	//MFRC522_AntennaOff(dev);
@@ -306,7 +304,8 @@ uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID 
                 }
             }
 
-            //////////
+            ////////// AFTER COLLISION HANDLER ///////
+
             fifoLvl = MFRC522_ReadReg(dev, PCD_FIFOLevelReg);
             if (fifoLvl > 1) // basically 4-byte UID + BCC but at least 1-byte UID + BCC
             {
@@ -328,12 +327,14 @@ uint8_t MFRC522_Anticoll(MFRC522_t *dev, uint8_t *uid) {  // Returns 4-byte UID 
                     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
                     return STATUS_ERROR;
                 }
+
                 DEBUG_LOG("Anticoll UID: %02X %02X %02X %02X %02X", uid[0], uid[1], uid[2], uid[3], uid[4]);
                 MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
                 //HAL_Delay(2);  // Post-command delay
-                if (txLast){
-                	return STATUS_COLL;
+                if (txLast) {
+                	return STATUS_COLL_1;
                 }
+
                 return STATUS_OK;
             }
 
@@ -421,6 +422,7 @@ uint8_t MFRC522_Halt(MFRC522_t *dev) {
 
     return STATUS_OK;
 }
+
 uint8_t MFRC522_Authentication(MFRC522_t *dev, uint8_t *uid, uint8_t address) {  // Output: block_data[16]
 	DEBUG_LOG("Authenticate");
 	MFRC522_WriteReg(dev, PCD_ComIrqReg, 0x7F);      // Clear IRQs
@@ -595,99 +597,3 @@ uint8_t MFRC522_Write_Block(MFRC522_t *dev, uint8_t address, uint8_t *block_data
     MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
     return STATUS_TIMEOUT;
 }
-
-uint8_t MFRC522_ReadUid(MFRC522_t *dev, uint8_t *uid) {  // Output: uid[4]
-    DEBUG_LOG("Reading UID");
-    // Card detected, read UID
-    uint8_t rawUid[5];
-    uint8_t LOC_STAT;
-
-    LOC_STAT = MFRC522_Anticoll(dev, rawUid);
-    if ((LOC_STAT != STATUS_OK) && (LOC_STAT != STATUS_COLL))
-    {
-    	DEBUG_LOG("Anticollision failed");
-        return STATUS_ERROR;
-    }
-
-    // Copy UID (drop BCC)
-    for (int i = 0; i < 4; i++){
-        uid[i] = rawUid[i];
-    }
-
-    DEBUG_LOG("Card UID: %02X %02X %02X %02X", uid[0], uid[1], uid[2], uid[3]);
-
-    if (LOC_STAT == STATUS_COLL){
-    	return STATUS_COLL;
-    }
-
-    return STATUS_OK;
-}
-
-uint8_t waitcardRemoval (MFRC522_t *dev){
-    MFRC522_WriteReg(dev, PCD_Status2Reg, 0x00);
-    MFRC522_AntennaOff(dev);
-    HAL_Delay(5);
-    MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
-
-    USER_LOG("Waiting for card removal...");
-    while (1){
-        MFRC522_AntennaOff(dev);  // Reset RF
-        HAL_Delay(5);  // Allow chip to stabilize
-        MFRC522_AntennaOn(dev);
-        HAL_Delay(5);  // Ensure RF is ready
-
-        if (MFRC522_RequestA(dev) != STATUS_OK){
-        	USER_LOG("Card removed");
-            return STATUS_OK; // Card removed, return success
-        }
-
-        //HAL_Delay(250); // Poll every 100ms to check if card is still present
-    }
-}
-
-uint8_t waitcardRemoval_custom (MFRC522_t *dev){
-    //MFRC522_WriteReg(dev, PCD_Status2Reg, 0x00);
-    //MFRC522_AntennaOff(dev);
-    //HAL_Delay(5);
-    //MFRC522_WriteReg(dev, PCD_CommandReg, PCD_Idle);
-	uint8_t status;
-    USER_LOG("Waiting for card removal...");
-    while (1){
-        //MFRC522_AntennaOff(dev);  // Reset RF
-        //HAL_Delay(5);  // Allow chip to stabilize
-        //MFRC522_AntennaOn(dev);
-        //HAL_Delay(5);  // Ensure RF is ready
-
-    	// IDLE STATE
-    	status = MFRC522_RequestA(dev);
-    	HAL_Delay(10);
-
-    	// READY STATE
-    	status = MFRC522_RequestA(dev);
-
-    	// CHECK IF WE STILL HAVE TAG
-        if (status != STATUS_OK){
-        	USER_LOG("Card removed");
-            return STATUS_OK; // Card removed, return success
-        }
-
-        HAL_Delay(250); // Poll every 100ms to check if card is still present
-    }
-}
-uint8_t waitcardDetect (MFRC522_t *dev) {
-	USER_LOG("Waiting for the card...");
-	while (1){
-	    //MFRC522_AntennaOff(dev);  // Reset RF
-	    //HAL_Delay(5);  // Allow chip to stabilize
-	    //MFRC522_AntennaOn(dev);
-	    //HAL_Delay(5);  // Ensure RF is ready
-	    if (MFRC522_WakeupA(dev) == STATUS_OK){
-	    	USER_LOG("Card detected");
-	        return STATUS_OK;
-	    }
-
-	    HAL_Delay(100);	// Poll every 100ms to check if card is  present
-	}
-}
-
-

@@ -17,24 +17,27 @@ uint8_t RFID_Remove(MFRC522_t *rfID){
 /////////////////////////////////////
 	MFRC522_WriteReg(rfID, PCD_Status2Reg, 0x00);
 	MFRC522_AntennaOff(rfID);  // Reset RF
-	HAL_Delay(5);  // Allow chip to stabilize
+	HAL_Delay(10);  // Allow chip to stabilize
 	MFRC522_WriteReg(rfID, PCD_CommandReg, PCD_Idle);
 
 	MFRC522_AntennaOn(rfID);
-	HAL_Delay(5);  // Ensure RF is ready
+	HAL_Delay(10);  // Ensure RF is ready
 
-	if (MFRC522_WakeupA(rfID) != STATUS_OK){
+	if (MFRC522_WakeupA(rfID) != STATUS_OK)
+	{
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
 		return STATUS_OK; // Card removed, return success
 	}
 
 	else return STATUS_ERROR;
 }
 
-uint8_t RFID_UID_Read(MFRC522_t *rfID, uint8_t *uid){
+uint8_t RFID_UID_Read(MFRC522_t *rfID, uint8_t *uid, uint8_t *MENU){
 /////////////////////////////////////////////////////
 	uint8_t STAT_GLOBAL = MFRC522_Anticoll(rfID, uid);
 
-	if ((STAT_GLOBAL == STATUS_OK) || (STAT_GLOBAL == STATUS_COLL))
+	if ((STAT_GLOBAL == STATUS_OK) || (STAT_GLOBAL == STATUS_COLL_1))
 	{
 		USER_LOG("CARD ID:%02X %02X %02X %02X", uid[0], uid[1], uid[2], uid[3]);
 
@@ -46,31 +49,39 @@ uint8_t RFID_UID_Read(MFRC522_t *rfID, uint8_t *uid){
 		}
 
 
-		if (STAT_GLOBAL == STATUS_COLL)
+		if (STAT_GLOBAL == STATUS_COLL_1) // Second round
 		{
-			while (STAT_GLOBAL == STATUS_COLL)
+			*MENU = UID_ONLY; //prevent undefined behavior in case of multiple TAGs
+
+			//HALT for the detected TAG
+			MFRC522_Select(rfID, uid);
+			MFRC522_Halt(rfID);
+
+			//New request for the second TAG
+			MFRC522_RequestA(rfID);
+			STAT_GLOBAL = MFRC522_Anticoll(rfID, uid);
+
+			if (STAT_GLOBAL == STATUS_OK)
 			{
-				MFRC522_Select(rfID, uid);
-				MFRC522_Halt(rfID);
-				MFRC522_RequestA(rfID);
+				USER_LOG("CARD ID:%02X %02X %02X %02X", uid[0], uid[1], uid[2], uid[3]);
 
-				STAT_GLOBAL = MFRC522_Anticoll(rfID, uid);
-
-				if ((STAT_GLOBAL == STATUS_OK) || (STAT_GLOBAL == STATUS_COLL))
-				{
-					USER_LOG("CARD ID:%02X %02X %02X %02X", uid[0], uid[1], uid[2], uid[3]);
-
-					if ((uid[0] == 0x83) && (uid[1] == 0xFB) &&(uid[2] == 0x1B) &&(uid[3] == 0x34)){
-						HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
-					}
-					else if ((uid[0] == 0x93) && (uid[1] == 0x24) &&(uid[2] == 0x41) &&(uid[3] == 0xCD)){
-						HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
-					}
+				if ((uid[0] == 0x83) && (uid[1] == 0xFB) &&(uid[2] == 0x1B) &&(uid[3] == 0x34)){
+					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+				}
+				else if ((uid[0] == 0x93) && (uid[1] == 0x24) &&(uid[2] == 0x41) &&(uid[3] == 0xCD)){
+					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
 				}
 			}
+
+			else return STATUS_ERROR;
 		}
 
 		return STATUS_OK;
+	}
+
+	else if (STAT_GLOBAL == STATUS_COLL_2)
+	{
+		USER_LOG("More than two cards detected.");
 	}
 
 	else return STATUS_ERROR;
