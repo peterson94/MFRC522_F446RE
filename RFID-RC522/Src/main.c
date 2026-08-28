@@ -70,9 +70,10 @@ int _write(int fd, unsigned char *buf, int len) {
 }
 
 MFRC522_t rfID = {&hspi1, CS_GPIO_Port, CS_Pin, RESET_GPIO_Port, RESET_Pin};
-uint8_t uid[4];
+uint8_t uid[5]; // 4-byte UID + 1-byte BCC
 uint8_t atqa_global[2];
-volatile uint8_t MENU;
+uint8_t MENU = UID_ONLY;
+
 /* USER CODE END 0 */
 
 /**
@@ -110,7 +111,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   MFRC522_Init(&rfID);
   /* USER CODE END 2 */
-  MENU = UID_ONLY;
   USER_LOG("Mode: UID_ONLY");
   USER_LOG("Press blue button for more actions.");
 
@@ -130,7 +130,7 @@ int main(void)
 
 	  USER_LOG("Card detected");
 
-	  RFID_UID_Read(&rfID, uid, &MENU);
+	  RFID_UID_Read(&rfID, uid);
 
 	  if (MENU != UID_ONLY)
 	  {
@@ -344,7 +344,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	MENU++;
 
 	if (MENU > 128){
-	  MENU = 0;
+		MENU = 0;
 	}
 
 	switch (MENU)

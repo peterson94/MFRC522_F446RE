@@ -1,7 +1,7 @@
 ../Src/RFID.c:6:9:RFID_Detect	2
 ../Src/RFID.c:16:9:RFID_Remove	2
 ../Src/RFID.c:33:9:RFID_UID_Read	23
-../Src/RFID.c:81:9:RFID_FullRead	14
-../Src/RFID.c:153:9:RFID_FullErase	7
-../Src/RFID.c:196:9:RFID_ReadBlock	6
-../Src/RFID.c:239:9:RFID_WriteBlock	7
+../Src/RFID.c:79:9:RFID_FullRead	14
+../Src/RFID.c:151:9:RFID_FullErase	7
+../Src/RFID.c:194:9:RFID_ReadBlock	6
+../Src/RFID.c:237:9:RFID_WriteBlock	7

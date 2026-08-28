@@ -30,7 +30,7 @@ uint8_t RFID_Remove(MFRC522_t *rfID){
 	else return STATUS_ERROR;
 }
 
-uint8_t RFID_UID_Read(MFRC522_t *rfID, uint8_t *uid, volatile uint8_t *MENU){
+uint8_t RFID_UID_Read(MFRC522_t *rfID, uint8_t *uid){
 /////////////////////////////////////////////////////
 	uint8_t STAT_GLOBAL = MFRC522_Anticoll(rfID, uid);
 
@@ -68,8 +68,6 @@ uint8_t RFID_UID_Read(MFRC522_t *rfID, uint8_t *uid, volatile uint8_t *MENU){
 					}
 				}
 			}
-
-			*MENU = UID_ONLY; // to avoid other features if there are multiple TAGs
 		}
 
 		return STATUS_OK;
@@ -193,7 +191,7 @@ uint8_t RFID_FullErase(MFRC522_t *rfID, uint8_t *uid){
 	return STATUS_OK;
 }
 
-uint8_t RFID_ReadBlock(MFRC522_t *rfID, uint8_t *uid, uint8_t MENU){
+uint8_t RFID_ReadBlock(MFRC522_t *rfID, uint8_t *uid, uint8_t MENU_LOCAL){
 ///////////////////////////////////////////////////////////////////////////
 	uint8_t ADDRESS;
 	uint8_t read_block[18] = {0};
@@ -204,7 +202,7 @@ uint8_t RFID_ReadBlock(MFRC522_t *rfID, uint8_t *uid, uint8_t MENU){
 
 	else return STATUS_ERROR;
 
-	ADDRESS = (uint8_t)((MENU-1)/2);
+	ADDRESS = (uint8_t)((MENU_LOCAL-1)/2);
 
 	if (ADDRESS % 4 != 3) // prohibit protected blocks
 	{
@@ -236,11 +234,11 @@ uint8_t RFID_ReadBlock(MFRC522_t *rfID, uint8_t *uid, uint8_t MENU){
 	return STATUS_OK;
 }
 
-uint8_t RFID_WriteBlock(MFRC522_t *rfID, uint8_t *uid, uint8_t MENU){
+uint8_t RFID_WriteBlock(MFRC522_t *rfID, uint8_t *uid, uint8_t MENU_LOCAL){
 ///////////////////////////////////////////////////////////////////////////
 	uint8_t ADDRESS;
 	uint8_t write_block[16] = {0};
-	uint8_t INCR = 0x00;
+	static uint8_t INCR = 0x00;
 
 	if (MFRC522_Select(rfID, uid) == STATUS_OK){
 		USER_LOG("SELECT_SUCCESS");
@@ -248,7 +246,7 @@ uint8_t RFID_WriteBlock(MFRC522_t *rfID, uint8_t *uid, uint8_t MENU){
 
 	else return STATUS_ERROR;
 
-	ADDRESS = (uint8_t)((MENU-1)/2);
+	ADDRESS = (uint8_t)((MENU_LOCAL-1)/2);
 
 	if (ADDRESS % 4 != 3) // prohibit protected blocks
 	{
