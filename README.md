@@ -1,9 +1,11 @@
-## 1) Pinout Description of Setup:  
+## 1) Pinout Description of Setup:
+<p align="center">  
 <img src="https://github.com/peterson94/RFID-RC522/blob/master/Setup_pinout_description.png">
-
+</p>
 ## 2) Layered SW architecture:
+<p align="center">
 <img src="https://github.com/peterson94/RFID-RC522/blob/master/MFRC_SW_Layers.png">
-
+</p>
 ## 3) Used References:  
 [1] Datasheet of [MFRC522](https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf)  
 [2] Datasheet of [Mifare Classic 1k TAG](https://www.nxp.com/docs/en/data-sheet/MF1S50YYX_V1.pdf)  
