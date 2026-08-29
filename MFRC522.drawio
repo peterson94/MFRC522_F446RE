@@ -1,0 +1,64 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Oldal-1" id="Dsx9c3ltj_iYu6xrKeFH">
+    <mxGraphModel dx="1885" dy="1001" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="GLvorTa56rW33R7odw21-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CCCCCC;" value="" vertex="1">
+          <mxGeometry height="910" width="600" x="20" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#CCCCFF;" value="" vertex="1">
+          <mxGeometry height="110" width="275" x="30" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#CCCCFF;" value="" vertex="1">
+          <mxGeometry height="110" width="275" x="330" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-19" edge="1" parent="1" source="GLvorTa56rW33R7odw21-11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.396;exitY=1.005;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;shape=flexArrow;fillColor=#707070;exitPerimeter=0;strokeWidth=1;startSize=6;endSize=6;sourcePerimeterSpacing=0;shadow=1;width=10;startWidth=20;" target="GLvorTa56rW33R7odw21-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-20" edge="1" parent="1" source="GLvorTa56rW33R7odw21-11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.596;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;shape=flexArrow;fillColor=#707070;exitPerimeter=0;strokeWidth=1;startSize=6;endSize=6;sourcePerimeterSpacing=0;shadow=1;width=10;startWidth=20;" target="GLvorTa56rW33R7odw21-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#CCCCFF;" value="" vertex="1">
+          <mxGeometry height="250" width="360" x="140" y="705" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-17" edge="1" parent="1" source="GLvorTa56rW33R7odw21-10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;shape=flexArrow;fillColor=#707070;strokeWidth=1;startSize=6;endSize=6;sourcePerimeterSpacing=0;shadow=1;width=10;startWidth=20;" target="GLvorTa56rW33R7odw21-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#CCCCFF;" value="" vertex="1">
+          <mxGeometry height="210" width="320" x="160" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-16" edge="1" parent="1" source="GLvorTa56rW33R7odw21-2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;shape=flexArrow;fillColor=#707070;strokeWidth=1;startSize=6;endSize=6;sourcePerimeterSpacing=0;shadow=1;width=10;startWidth=20;" target="GLvorTa56rW33R7odw21-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ahUkH_6oq8ebb-VcGQzd-2" edge="1" parent="1" source="GLvorTa56rW33R7odw21-2" style="edgeStyle=orthogonalEdgeStyle;shape=flexArrow;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;fillColor=#707070;startSize=6;endSize=6;strokeWidth=1;shadow=1;" target="GLvorTa56rW33R7odw21-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#CCCCFF;" value="" vertex="1">
+          <mxGeometry height="150" width="320" x="160" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;u&gt;main.c&lt;/u&gt;&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;ul style=&quot;&quot;&gt;&lt;li style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;Callings of the features in main cycle.&lt;/font&gt;&lt;/li&gt;&lt;li style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;Ext. interrupt callback for the button of the menu.&lt;/font&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="130" width="230" x="200" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-5" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;u&gt;RFID.c&lt;/u&gt;&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;Functions of the features&lt;br&gt;&lt;/font&gt;&lt;ul&gt;&lt;li&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;TAG Detection&lt;/font&gt;&lt;/li&gt;&lt;li&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;UID read&lt;/font&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 14px; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Read full TAG&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 14px; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Erase full TAG&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 14px; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Read one block of TAG&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 14px; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Write one block of TAG&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="180" width="230" x="200" y="455" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-6" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;u&gt;MFRC522_STM32.c&lt;/u&gt;&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;font style=&quot;font-size: 14px;&quot;&gt;Implemented ISO14443 processes&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); font-size: 14px;&quot;&gt;Wakeup&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); font-size: 14px;&quot;&gt;Request_A&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); font-size: 14px;&quot;&gt;Anticollision&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); font-size: 14px;&quot;&gt;Select&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); font-size: 14px;&quot;&gt;Authenticate&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); font-size: 14px;&quot;&gt;Halt&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); font-size: 14px;&quot;&gt;Read&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 14px; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Write&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;" vertex="1">
+          <mxGeometry height="205" width="320" x="170" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-8" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;u&gt;STM32 HAL Drivers&lt;/u&gt;&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;ul style=&quot;&quot;&gt;&lt;li style=&quot;&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;HAL_GPIO&lt;/span&gt;&lt;/li&gt;&lt;li style=&quot;&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;HAL_SPI&lt;/span&gt;&lt;/li&gt;&lt;li style=&quot;&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;HAL_EXTI&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="215" x="55" y="1040" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-9" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;b&gt;&lt;font style=&quot;font-size: 21px;&quot;&gt;&lt;u&gt;calculation_crc.c&lt;/u&gt;&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;ul style=&quot;&quot;&gt;&lt;li style=&quot;&quot;&gt;checksum calculator CRC_A, CRC_B&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="245" x="345" y="1035" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CCCCFF;" value="" vertex="1">
+          <mxGeometry height="90" width="160" x="310" y="845" as="geometry" />
+        </mxCell>
+        <mxCell id="GLvorTa56rW33R7odw21-7" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;div&gt;&lt;font style=&quot;font-size: 13px;&quot;&gt;&lt;i style=&quot;&quot;&gt;&lt;font style=&quot;&quot;&gt;Elementary functions&lt;/font&gt;&lt;br&gt;&lt;/i&gt;&lt;/font&gt;&lt;ul&gt;&lt;li&gt;&lt;font style=&quot;font-size: 13px;&quot;&gt;&lt;i&gt;Read Register&lt;/i&gt;&lt;/font&gt;&lt;/li&gt;&lt;li&gt;&lt;font style=&quot;font-size: 13px;&quot;&gt;&lt;i style=&quot;&quot;&gt;Write Register&lt;/i&gt;&lt;/font&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="90" width="140" x="320" y="845" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
