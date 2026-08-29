@@ -1,10 +1,10 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Oldal-1" id="Dsx9c3ltj_iYu6xrKeFH">
-    <mxGraphModel dx="1885" dy="1001" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1768" dy="939" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="GLvorTa56rW33R7odw21-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#CCCCCC;" value="" vertex="1">
+        <mxCell id="GLvorTa56rW33R7odw21-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
           <mxGeometry height="910" width="600" x="20" y="230" as="geometry" />
         </mxCell>
         <mxCell id="GLvorTa56rW33R7odw21-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;shadow=1;fillColor=#CCCCFF;" value="" vertex="1">
